@@ -1,0 +1,24 @@
+FloatLayout:
+    Canvas.before:
+        color(1, 0, 0, 1)
+            rectangle:
+            pos: self.pos
+            size: self.size
+    TextInput:
+        id: nomeusuario
+        hint_text: 'NOME DO USUÁRIO'
+        multiline: False
+        size_hint_x: None
+        size_hint_y: None
+        width: 300
+        height: '30dp'
+        pos_hint: {'x': 0.3, 'y': 0.6}
+    TextInput:
+        id: senha
+        hint_text: 'SENHA'
+        multiline: False
+        size_hint_x: None
+        size_hint_y: None
+        width: 300
+        height: '30dp'
+        pos_hint: {'x': 0.3, 'y': 0.5}
