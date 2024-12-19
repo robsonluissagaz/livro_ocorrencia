@@ -1,6 +1,24 @@
-FloatLayout:
+MeuGerenciador:
+    LoginScreen:
+    SupervisorScreen:
+    VigilanteScreen:
+    ErroSenhaUsuarioScreen:
+
+
+<LoginScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: 'login_screen'
+    Image:
+        source: 'grupoft.png'
+        size_hint: 0.80, 0.80
+        pos_hint: {'x': 0.1, 'y': 0.4}
     TextInput:
-        id: nomeusuario
+        id: nome_usuario
         hint_text: 'NOME DO USUÁRIO'
         multiline: False
         size_hint_x: None
@@ -9,7 +27,7 @@ FloatLayout:
         height: '30dp'
         pos_hint: {'x': 0.3, 'y': 0.6}
     TextInput:
-        id: senha
+        id: senha_usuario
         hint_text: 'SENHA'
         password: True
         multiline: False
@@ -18,6 +36,10 @@ FloatLayout:
         width: 300
         height: '30dp'
         pos_hint: {'x': 0.3, 'y': 0.5}
+    Label:
+        id: mensagem
+        text: ''
+        color: 1, 0, 0, 1
     Button:
         text: 'ENTRAR'
         size_hint_x: None
@@ -25,3 +47,65 @@ FloatLayout:
         width: 150
         height: '40dp'
         pos_hint: {'x':0.4,'y':0.4}
+        on_press: root.verificar_login()
+    Button:
+        text: 'FECHAR PROGRAMA'
+        size_hint_x: None
+        size_hint_y: None
+        width: 150
+        height: '40dp'
+        pos_hint: {'x':0.4,'y':0.3}
+        background_color: 1, 0, 0, 1
+        on_press: app.fechar_aplicativo()
+
+<SupervisorScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: "supervisor_screen"
+    Button:
+        text: 'CADASTRAR VIGILANTE'
+        size_hint_x: None
+        size_hint_y: None
+        width: self.texture_size[0] + 20
+        height: '40dp'
+        pos_hint: {'x':0.4,'y':0.6}
+    Button:
+        text: 'SAIR'
+        size_hint: None, None
+        height: '40dp'
+        width: self.texture_size[0] + 20
+        pos_hint: {'x':0.9,'y':0.1}
+        background_color: 1, 0, 0, 1
+        on_press: app.fechar_aplicativo()
+
+<VigilanteScreen>:
+    name: "vigilante_screen"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "Bem-vindo, Vigilante!"
+        Button:
+            text: "Sair"
+            size_hint: (1, 0.2)
+            on_press: app.root.current = "login_screen"
+
+<ErroSenhaUsuarioScreen>:
+    name: 'erro_senha_usuario'
+    Label:
+        text: 'USUÁRIO OU SENHA INCORRETO'
+        color: 1, 0, 0, 1
+        size_hint_x: None
+        size_hint_y: None
+        pos_hint: {'center_x':0.5,'center_y':0.6}
+    Button:
+        text: "VOLTAR"
+        size_hint_x: None
+        size_hint_y: None
+        width: 150
+        height: '40dp'
+        pos_hint: {'x':0.4,'y':0.4}
+        on_press: app.root.current = "login_screen"
