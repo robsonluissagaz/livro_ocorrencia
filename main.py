@@ -51,7 +51,7 @@ class LoginScreen(Screen):
 class SupervisorScreen(Screen):
     pass
 
-class CadastroVigilanteScreeen(Screen):
+class CadastroVigilanteScreen(Screen):
     pass
 
 class VigilanteScreen(Screen):

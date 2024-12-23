@@ -3,7 +3,7 @@ MeuGerenciador:
     SupervisorScreen:
     VigilanteScreen:
     ErroSenhaUsuarioScreen:
-
+    CadastroVigilanteScreen:
 
 <LoginScreen>:
     canvas.before:
@@ -81,42 +81,67 @@ MeuGerenciador:
         width: self.texture_size[0] + 20
         pos_hint: {'x':0.9,'y':0.1}
         background_color: 1, 0, 0, 1
-        on_press: app.fechar_aplicativo()
+        on_press: root.manager.current = 'login_screen'
 
-<CadastroVigilanteScreeen>:
+<CadastroVigilanteScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
     name: 'cadastro_vigilante'
+    Label:
+        id: letreiro_cadastro_vigilante
+        text: 'CADASTRO DE VIGILANTE'
+        color: 0, 0, 0, 1
+        size_hint_x: None
+        size_hint_y: None
+        pos_hint: {'x': 0.4, 'y': 0.8}
     TextInput:
-        name: login_vigilante
+        name: 'login_vigilante'
         hint_text: 'USUÁRIO'
-        password: True
         multiline: False
         size_hint_x: None
         size_hint_y: None
         width: 300
-        height: '40dp'
-        pos_hint: {'x': 0.3, 'y': 0.5}
-    TextInput:
-         name: senha1_vigilante
-        hint_text: 'DIGITE A SENHA'
-        password: True
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '40dp'
+        height: '30dp'
         pos_hint: {'x': 0.3, 'y': 0.7}
     TextInput:
-        name: senha2_vigilante
+        name: 'senha1_vigilante'
+        hint_text: 'DIGITE UMA SENHA'
+        password: True
+        multiline: False
+        size_hint_x: None
+        size_hint_y: None
+        width: 300
+        height: '30dp'
+        pos_hint: {'x': 0.3, 'y': 0.6}
+    TextInput:
+        name: 'senha2_vigilante'
         hint_text: 'REPITA A SENHA'
         password: True
         multiline: False
         size_hint_x: None
         size_hint_y: None
         width: 300
+        height: '30dp'
+        pos_hint: {'x': 0.3, 'y': 0.5}
+    Button:
+        text: 'CADASTRAR VIGILANTE'
+        width: self.texture_size[0] + 20
         height: '40dp'
-        pos_hint: {'x': 0.3, 'y': 0.8}
-
-
+        size_hint_x: None
+        size_hint_y: None
+        pos_hint: {'x': 0.36, 'y': 0.4}
+    Button:
+        text: 'VOLTAR'
+        background_color: 1, 0, 0, 1
+        height: '40dp'
+        size_hint_x: None
+        size_hint_y: None
+        pos_hint: {'x': 0.4, 'y': 0.3}
+        on_press: root.manager.current = 'supervisor_screen'
 
 <VigilanteScreen>:
     name: "vigilante_screen"
