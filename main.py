@@ -37,7 +37,6 @@ def login_usuario(nome_usuario, senha):
             return "usuario_nao_encontrado"
 
 
-
 class LoginScreen(Screen):
     def verificar_login(self):
         nome = self.ids.nome_usuario.text
@@ -52,6 +51,8 @@ class LoginScreen(Screen):
         elif cargo == "VIGILANTE":
             self.ids.nome_usuario.text = ''
             self.ids.senha_usuario.text = ''
+            vigilante_screen = self.manager.get_screen('vigilante_screen')
+            vigilante_screen.atualizar_label()
             self.manager.current = "vigilante_screen"
         elif cargo == "senha_incorreta":
             self.show_popup("Erro de senha", "Senha incorreta")
@@ -139,6 +140,8 @@ class RemoverVigilanteScreen(Screen):
             password="Aec91a427r02j03b",
             database="banco_vigilantes")
     cursor = conn.cursor()
+
+
     def remover_vigilante(self):
         nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
         if not nome_vigilante:
@@ -173,6 +176,8 @@ class RemoverVigilanteScreen(Screen):
             popup.open()
         except mysql.connector.Error as e:
             self.show_popup("Erro", f"Erro ao acessar o banco de dados: {str(e)}")
+    
+
     def confirmar_remocao(self, popup, nome_vigilante):
         try:
             query = "DELETE FROM vigilantes WHERE nome = %s"
@@ -183,6 +188,8 @@ class RemoverVigilanteScreen(Screen):
             self.show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
         finally:
             popup.dismiss()
+        
+    
     def show_popup(self, titulo, mensagem):
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
         content.add_widget(Label(text=mensagem))
@@ -201,6 +208,9 @@ class RemoverVigilanteScreen(Screen):
 
 
 class VigilanteScreen(Screen):
+    def atualizar_label(self):
+        global nome_usuario_letreiro
+        self.ids.letreiro_vigilante.text = f'BEM VINDO {nome_usuario_letreiro}'
     pass
 
 

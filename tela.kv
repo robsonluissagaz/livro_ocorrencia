@@ -14,46 +14,43 @@ MeuGerenciador:
             pos: self.pos
             size: self.size
     name: 'login_screen'
-    Image:
-        source: 'grupoft.png'
-        size_hint: 0.80, 0.80
-        pos_hint: {'x': 0.1, 'y': 0.4}
-    TextInput:
-        id: nome_usuario
-        hint_text: 'USUÁRIO'
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.6}
-    TextInput:
-        id: senha_usuario
-        hint_text: 'SENHA'
-        password: True
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.5}
-    Button:
-        text: 'ENTRAR'
-        size_hint_x: None
-        size_hint_y: None
-        width: 150
-        height: '40dp'
-        pos_hint: {'x':0.4,'y':0.4}
-        on_release: root.verificar_login()
-    Button:
-        text: 'FECHAR'
-        size_hint_x: None
-        size_hint_y: None
-        width: 150
-        height: '40dp'
-        pos_hint: {'x':0.4,'y':0.3}
-        background_color: 1, 0, 0, 1
-        on_release: app.fechar_aplicativo()
+    FloatLayout:
+        Image:
+            source: 'grupoft.png'
+            size_hint: 0.8, 0.8
+            pos_hint: {"center_x": 0.5, "y": 0.40}
+        TextInput:
+            id: nome_usuario
+            hint_text: 'USUÁRIO'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.55}
+        TextInput:
+            id: senha_usuario
+            hint_text: 'SENHA'
+            password: True
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.45}
+        Button:
+            text: 'ENTRAR'
+            size_hint: 0.3, None
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.35}
+            on_release: root.verificar_login()
+        Button:
+            text: 'FECHAR'
+            size_hint: 0.3, None
+            height: '50dp'
+            font_size: '18sp'
+            background_color: 1, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.25}
+            on_release: app.fechar_aplicativo()
 
 <SupervisorScreen>:
     canvas.before:
@@ -170,7 +167,7 @@ MeuGerenciador:
         color: 1, 1, 1, 1
         size_hint_x: None
         size_hint_y: None
-        pos_hint: {'x': 0.4, 'y': 0.2}
+        pos_hint: {'x': 0.4, 'y': 0.25}
 
 <RemoverVigilanteScreen>:
     canvas.before:
@@ -213,17 +210,20 @@ MeuGerenciador:
         on_release: root.manager.current = 'supervisor_screen'
 
 <VigilanteScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
     name: "vigilante_screen"
-    BoxLayout:
-        orientation: "vertical"
+    GridLayout:
+        cols: 1
         Label:
             id: letreiro_vigilante
             text: ''
+            color: 0, 0, 0, 1
         Button:
             text: "Sair"
             background_color: 1, 0, 0, 1
-            height: '40dp'
-            size_hint_x: None
-            size_hint_y: None
-            pos_hint: {'x': 0.42, 'y': 0.3}
             on_release: app.root.current = "login_screen"
