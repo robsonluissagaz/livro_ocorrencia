@@ -4,6 +4,10 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 import mysql.connector
 import bcrypt
 import sys
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
 
 nome_usuario_letreiro = ''
 #Função de login
@@ -50,9 +54,25 @@ class LoginScreen(Screen):
             self.ids.senha_usuario.text = ''
             self.manager.current = "vigilante_screen"
         elif cargo == "senha_incorreta":
-            self.manager.current = "erro_senha_usuario"
+            self.show_popup("Erro de senha", "Senha incorreta")
         elif cargo == "usuario_nao_encontrado":
-            self.manager.current = "erro_senha_usuario"
+            self.show_popup("Erro de Login", "Usuário não encontrado")
+    
+
+    def show_popup(self, titulo, mensagem):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text=mensagem))
+        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
+        btn_layout.add_widget(Label())
+        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
+        btn_layout.add_widget(Label())
+        content.add_widget(btn_layout)
+        popup = Popup(
+            title=titulo,
+            content=content,
+            size_hint=(0.6, 0.4),
+            auto_dismiss=False,)
+        popup.open()
 
 
 class SupervisorScreen(Screen):
@@ -113,6 +133,70 @@ class CadastroVigilanteScreen(Screen):
 
 
 class RemoverVigilanteScreen(Screen):
+    conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="Aec91a427r02j03b",
+            database="banco_vigilantes")
+    cursor = conn.cursor()
+    def remover_vigilante(self):
+        nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
+        if not nome_vigilante:
+            self.show_popup("Erro", "Por favor, insira o nome completo do vigilante.")
+            return
+        try:
+            query = "SELECT nome, cargo FROM vigilantes WHERE nome = %s"
+            self.cursor.execute(query, (nome_vigilante,))
+            dados = self.cursor.fetchone()
+            if not dados:
+                self.show_popup("Aviso", f"Usuário '{nome_vigilante}' não encontrado.")
+                return
+            nome_do_vigilante, cargo_do_vigilante = dados
+            if cargo_do_vigilante == "SUPERVISOR":
+                self.show_popup("Erro", f"Você não tem permissão para remover o usuário '{nome_do_vigilante}'")
+                return
+            content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+            content.add_widget(Label(text=f"Tem certeza que deseja remover o usuário '{nome_vigilante}'?"))
+            btn_layout = BoxLayout(orientation='horizontal', spacing=10)
+            btn_confirmar = Button(text="Confirmar", size_hint=(0.5, None), height=40)
+            btn_cancelar = Button(text="Cancelar", size_hint=(0.5, None), height=40)
+            popup = Popup(
+                title="Confirmação",
+                content=content,
+                size_hint=(0.6, 0.4),
+                auto_dismiss=False,)
+            btn_confirmar.bind(on_release=lambda x: self.confirmar_remocao(popup, nome_vigilante))
+            btn_cancelar.bind(on_release=popup.dismiss)
+            btn_layout.add_widget(btn_confirmar)
+            btn_layout.add_widget(btn_cancelar)
+            content.add_widget(btn_layout)
+            popup.open()
+        except mysql.connector.Error as e:
+            self.show_popup("Erro", f"Erro ao acessar o banco de dados: {str(e)}")
+    def confirmar_remocao(self, popup, nome_vigilante):
+        try:
+            query = "DELETE FROM vigilantes WHERE nome = %s"
+            self.cursor.execute(query, (nome_vigilante,))
+            self.conn.commit()
+            self.show_popup("Sucesso", f"Usuário '{nome_vigilante}' removido com sucesso.")
+        except mysql.connector.Error as e:
+            self.show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
+        finally:
+            popup.dismiss()
+    def show_popup(self, titulo, mensagem):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text=mensagem))
+        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
+        btn_layout.add_widget(Label())
+        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
+        btn_layout.add_widget(Label())
+        content.add_widget(btn_layout)
+        popup = Popup(
+            title=titulo,
+            content=content,
+            size_hint=(0.6, 0.4),
+            auto_dismiss=False,)
+        popup.open()
     pass
 
 

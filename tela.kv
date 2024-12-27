@@ -20,7 +20,7 @@ MeuGerenciador:
         pos_hint: {'x': 0.1, 'y': 0.4}
     TextInput:
         id: nome_usuario
-        hint_text: 'NOME DO USUÁRIO'
+        hint_text: 'USUÁRIO'
         multiline: False
         size_hint_x: None
         size_hint_y: None
@@ -37,10 +37,6 @@ MeuGerenciador:
         width: 300
         height: '30dp'
         pos_hint: {'x': 0.3, 'y': 0.5}
-    Label:
-        id: mensagem
-        text: ''
-        color: 1, 0, 0, 1
     Button:
         text: 'ENTRAR'
         size_hint_x: None
@@ -50,7 +46,7 @@ MeuGerenciador:
         pos_hint: {'x':0.4,'y':0.4}
         on_release: root.verificar_login()
     Button:
-        text: 'FECHAR PROGRAMA'
+        text: 'FECHAR'
         size_hint_x: None
         size_hint_y: None
         width: 150
@@ -73,14 +69,14 @@ MeuGerenciador:
         size_hint_x: None
         size_hint_y: None
         color: 0, 0, 0, 1
-        pos_hint: {'x':0.45,'y':0.75}
+        pos_hint: {'x':0.44,'y':0.55}
     Button:
         text: 'CADASTRAR VIGILANTE'
         size_hint_x: None
         size_hint_y: None
         width: self.texture_size[0] + 20
         height: '40dp'
-        pos_hint: {'x':0.4,'y':0.7}
+        pos_hint: {'x':0.38,'y':0.5}
         on_release: root.manager.current = 'cadastro_vigilante'
     Button:
         text: 'REMOVER VIGILANTE'
@@ -88,14 +84,14 @@ MeuGerenciador:
         size_hint_y: None
         width: self.texture_size[0] + 20
         height: '40dp'
-        pos_hint: {'x':0.41,'y':0.6}
+        pos_hint: {'x':0.39,'y':0.4}
         on_release: root.manager.current = 'remover_vigilante'
     Button:
         text: 'SAIR'
         size_hint: None, None
         height: '40dp'
         width: self.texture_size[0] + 20
-        pos_hint: {'x':0.47,'y':0.5}
+        pos_hint: {'x':0.46,'y':0.3}
         background_color: 1, 0, 0, 1
         on_release: root.manager.current = 'login_screen'
 
@@ -176,7 +172,6 @@ MeuGerenciador:
         size_hint_y: None
         pos_hint: {'x': 0.4, 'y': 0.2}
 
-
 <RemoverVigilanteScreen>:
     canvas.before:
         Color:
@@ -207,15 +202,15 @@ MeuGerenciador:
         size_hint_x: None
         size_hint_y: None
         pos_hint: {'x': 0.36, 'y': 0.5}
+        on_release: root.remover_vigilante()
     Button:
         text: 'VOLTAR'
         background_color: 1, 0, 0, 1
         height: '40dp'
         size_hint_x: None
         size_hint_y: None
-        pos_hint: {'x': 0.41, 'y': 0.4}
+        pos_hint: {'x': 0.40, 'y': 0.4}
         on_release: root.manager.current = 'supervisor_screen'
-
 
 <VigilanteScreen>:
     name: "vigilante_screen"
@@ -232,20 +227,3 @@ MeuGerenciador:
             size_hint_y: None
             pos_hint: {'x': 0.42, 'y': 0.3}
             on_release: app.root.current = "login_screen"
-
-<ErroSenhaUsuarioScreen>:
-    name: 'erro_senha_usuario'
-    Label:
-        text: 'USUÁRIO OU SENHA INCORRETO'
-        color: 1, 0, 0, 1
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'center_x':0.5,'center_y':0.6}
-    Button:
-        text: "VOLTAR"
-        size_hint_x: None
-        size_hint_y: None
-        width: 150
-        height: '40dp'
-        pos_hint: {'x':0.4,'y':0.4}
-        on_release: app.root.current = "login_screen"
