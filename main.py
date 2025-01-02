@@ -8,33 +8,31 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+import requests
 
+API_URL = "http://192.168.255.88:5000"
 nome_usuario_letreiro = ''
+
 #Função de login
 def login_usuario(nome_usuario, senha):
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Aec91a427r02j03b",
-            database="banco_vigilantes")
-        cursor = conn.cursor()
-        cursor.execute("SELECT senha_hash, cargo, nome FROM vigilantes WHERE login = %s", (nome_usuario,))
-        resultado = cursor.fetchone()
-        if resultado:
+    payload = {
+        "username": nome_usuario,
+        "password": senha
+    }
+    try:
+        response = requests.post(f"{API_URL}/login", json=payload)
+        if response.status_code == 200:
+            dados = response.json()
             global nome_usuario_letreiro
-            senha_hash_banco, cargo, nome_usuario_letreiro = resultado
-            if bcrypt.checkpw(senha.encode('utf-8'), senha_hash_banco.encode('utf-8')):
-                cursor.close()
-                conn.close()
-                return cargo
-            else:
-                cursor.close()
-                conn.close()
-                return 'senha_incorreta'
+            nome_usuario_letreiro = dados.get("nome", "")
+            return dados.get("cargo", "usuario_nao_encontrado")
+        elif response.status_code == 401:
+            return "senha_incorreta"
         else:
-            cursor.close()
-            conn.close()
             return "usuario_nao_encontrado"
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao se conectar à API: {e}")
+        return "erro_conexao_api"
 
 
 class LoginScreen(Screen):
@@ -97,49 +95,70 @@ class CadastroVigilanteScreen(Screen):
             self.ids.letreiro_feed_back.text = "As senhas não coincidem!"
             self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
             return
+        payload = {
+            "nome": nome_completo,
+            "login": login_vigilante,
+            "senha": senha1
+        }
         try:
-            conn = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="Aec91a427r02j03b",
-                database="banco_vigilantes")
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM vigilantes WHERE nome = %s OR login = %s", (nome_completo, login_vigilante))
-            if cursor.fetchone():
-                self.ids.letreiro_feed_back.text = "Nome ou Login já existentes!"
+
+            response = requests.post(f"{API_URL}/vigilantes", json=payload)
+            if response.status_code == 201:
+                self.ids.letreiro_feed_back.text = "Vigilante cadastrado com sucesso!"
+                self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
+                self.ids.nome_completo.text = ""
+                self.ids.login_vigilante.text = ""
+                self.ids.senha1_vigilante.text = ""
+                self.ids.senha2_vigilante.text = ""
+            elif response.status_code == 400:
+                erro = response.json().get("error", "Erro ao cadastrar vigilante!")
+                self.ids.letreiro_feed_back.text = erro
                 self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
-                conn.close()
-                return
-            senha_criptografada = bcrypt.hashpw(senha1.encode("utf-8"), bcrypt.gensalt())
-            cargo = 'VIGILANTE'
-            cursor.execute(
-                "INSERT INTO vigilantes (nome, cargo, senha_hash, login) VALUES (%s, %s, %s, %s)",
-                (nome_completo,cargo, senha_criptografada, login_vigilante))
-            conn.commit()
-            conn.close()
-            self.ids.letreiro_feed_back.text = "Vigilante cadastrado com sucesso!"
-            self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
-            self.ids.nome_completo.text = ""
-            self.ids.login_vigilante.text = ""
-            self.ids.senha1_vigilante.text = ""
-            self.ids.senha2_vigilante.text = ""
-        except mysql.connector.Error as e:
-            self.ids.letreiro_feed_back.text = "Erro ao acessar o banco de dados!"
+            else:
+                self.ids.letreiro_feed_back.text = "Erro desconhecido ao cadastrar!"
+                self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+        except requests.exceptions.RequestException as e:
+            self.ids.letreiro_feed_back.text = "Erro ao se conectar à API!"
             self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
-            print(f"Erro MySQL: {e}")
-        finally:
-            if conn.is_connected():
-                conn.close()
-    pass
+            print(f"Erro de conexão com a API: {e}")
 
 
 class RemoverVigilanteScreen(Screen):
-    conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Aec91a427r02j03b",
-            database="banco_vigilantes")
-    cursor = conn.cursor()
+    def remover_vigilante(self):
+        nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
+        if not nome_vigilante:
+            self.ids.letreiro_feed_back.text = "Preencha o nome do vigilante!"
+            self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+            return
+        def confirmar_remocao(instance):
+            popup.dismiss()
+            try:
+                response = requests.delete(f"{API_URL}/vigilantes", json={"nome": nome_vigilante})
+                if response.status_code == 200:
+                    self.ids.letreiro_feed_back.text = "Vigilante removido com sucesso!"
+                    self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
+                    self.ids.nome_vigilante_remover.text = ""
+                elif response.status_code == 400:
+                    erro = response.json().get("error", "Erro ao remover vigilante!")
+                    self.ids.letreiro_feed_back.text = erro
+                    self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                else:
+                    self.ids.letreiro_feed_back.text = "Erro desconhecido ao remover!"
+                    self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+            except requests.exceptions.RequestException as e:
+                self.ids.letreiro_feed_back.text = "Erro ao se conectar à API!"
+                self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                print(f"Erro de conexão com a API: {e}")
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text=f"Tem certeza que deseja remover '{nome_vigilante}'?"))
+        buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
+        btn_confirmar = Button(text="Sim", on_release=confirmar_remocao)
+        btn_cancelar = Button(text="Cancelar", on_release=lambda instance: popup.dismiss())
+        buttons.add_widget(btn_confirmar)
+        buttons.add_widget(btn_cancelar)
+        content.add_widget(buttons)
+        popup = Popup(title="Confirmação", content=content, size_hint=(0.6, 0.4), auto_dismiss=False)
+        popup.open()
 
 
     def remover_vigilante(self):
