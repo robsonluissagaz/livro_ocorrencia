@@ -2,7 +2,6 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import mysql.connector
-import bcrypt
 import sys
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
@@ -31,7 +30,6 @@ def login_usuario(nome_usuario, senha):
         else:
             return "usuario_nao_encontrado"
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao se conectar à API: {e}")
         return "erro_conexao_api"
 
 
@@ -56,6 +54,8 @@ class LoginScreen(Screen):
             self.show_popup("Erro de senha", "Senha incorreta")
         elif cargo == "usuario_nao_encontrado":
             self.show_popup("Erro de Login", "Usuário não encontrado")
+        elif cargo == "erro_conexao_api":
+            self.show_popup("Erro de Login", "Servidor indisponível no momento.")
     
 
     def show_popup(self, titulo, mensagem):
