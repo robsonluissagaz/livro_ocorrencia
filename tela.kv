@@ -44,7 +44,7 @@ MeuGerenciador:
             on_release: root.verificar_login()
         Button:
             text: 'FECHAR'
-            size_hint: 0.3, None
+            size_hint: 0.15, None
             height: '50dp'
             font_size: '18sp'
             background_color: 1, 0, 0, 1
@@ -59,37 +59,35 @@ MeuGerenciador:
             pos: self.pos
             size: self.size
     name: "supervisor_screen"
-    Label:
-        id: letreiro
-        text: ''
-        size_hint_x: None
-        size_hint_y: None
-        color: 0, 0, 0, 1
-        pos_hint: {'x':0.44,'y':0.55}
-    Button:
-        text: 'CADASTRAR VIGILANTE'
-        size_hint_x: None
-        size_hint_y: None
-        width: self.texture_size[0] + 20
-        height: '40dp'
-        pos_hint: {'x':0.38,'y':0.5}
-        on_release: root.manager.current = 'cadastro_vigilante'
-    Button:
-        text: 'REMOVER VIGILANTE'
-        size_hint_x: None
-        size_hint_y: None
-        width: self.texture_size[0] + 20
-        height: '40dp'
-        pos_hint: {'x':0.39,'y':0.4}
-        on_release: root.manager.current = 'remover_vigilante'
-    Button:
-        text: 'SAIR'
-        size_hint: None, None
-        height: '40dp'
-        width: self.texture_size[0] + 20
-        pos_hint: {'x':0.46,'y':0.3}
-        background_color: 1, 0, 0, 1
-        on_release: root.manager.current = 'login_screen'
+    FloatLayout:
+        Label:
+            id: letreiro
+            text: ''
+            size_hint: None, None
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.55}
+        Button:
+            text: 'CADASTRAR VIGILANTE'
+            size_hint: 0.3, None
+            font_size: '18sp'
+            height: '50dp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
+            on_release: root.manager.current = 'cadastro_vigilante'
+        Button:
+            text: 'REMOVER VIGILANTE'
+            size_hint: 0.3, None
+            font_size: '18sp'
+            height: '50dp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            on_release: root.manager.current = 'remover_vigilante'
+        Button:
+            text: 'SAIR'
+            size_hint: 0.15, None
+            font_size: '18sp'
+            height: '50dp'
+            background_color: 1, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            on_release: root.manager.current = 'login_screen'
 
 <CadastroVigilanteScreen>:
     canvas.before:

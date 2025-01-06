@@ -9,7 +9,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 import requests
 
-API_URL = "http://192.168.255.88:5000"
+API_URL = "http://186.225.224.185:5000"
 nome_usuario_letreiro = ''
 
 #Função de login
@@ -31,6 +31,20 @@ def login_usuario(nome_usuario, senha):
             return "usuario_nao_encontrado"
     except requests.exceptions.RequestException as e:
         return "erro_conexao_api"
+
+
+def logout_usuario(nome_usuario):
+    payload = {
+        "username": nome_usuario
+    }
+    try:
+        response = requests.post(f"{API_URL}/logout", json=payload)
+        if response.status_code == 200:
+            return "Logout bem-sucedido!"
+        else:
+            return "Erro no logout"
+    except requests.exceptions.RequestException as e:
+        return "Erro ao se conectar à API para logout"
 
 
 class LoginScreen(Screen):
@@ -208,8 +222,10 @@ class MeuAplicativo(App):
     
 
     def fechar_aplicativo(self):
+        if nome_usuario_letreiro:
+            logout_usuario(nome_usuario_letreiro)
         App.get_running_app().stop()
-        sys.exit() 
+        sys.exit(0) 
 
 
 MeuAplicativo().run()
