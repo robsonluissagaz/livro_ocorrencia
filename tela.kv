@@ -16,8 +16,8 @@ MeuGerenciador:
     FloatLayout:
         Image:
             source: 'grupoft.png'
-            size_hint: 0.8, 0.8
-            pos_hint: {"center_x": 0.5, "y": 0.40}
+            size_hint: 1, 1
+            pos_hint: {"center_x": 0.5, "y": 0.30}
         TextInput:
             id: nome_usuario
             hint_text: 'USUÁRIO'
@@ -97,74 +97,68 @@ MeuGerenciador:
             pos: self.pos
             size: self.size
     name: 'cadastro_vigilante'
-    Label:
-        id: letreiro_cadastro_vigilante
-        text: 'CADASTRO DE VIGILANTE'
-        color: 0, 0, 0, 1
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.4, 'y': 0.84}
-    TextInput:
-        id: nome_completo
-        hint_text: 'NOME COMPLETO'
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.8}
-    TextInput:
-        id: login_vigilante
-        hint_text: 'USUÁRIO'
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.7}
-    TextInput:
-        id: senha1_vigilante
-        hint_text: 'DIGITE UMA SENHA'
-        password: True
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.6}
-    TextInput:
-        id: senha2_vigilante
-        hint_text: 'REPITA A SENHA'
-        password: True
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.5}
-    Button:
-        text: 'CADASTRAR VIGILANTE'
-        width: self.texture_size[0] + 20
-        height: '40dp'
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.36, 'y': 0.4}
-        on_release: root.cadastrar_vigilante()
-    Button:
-        text: 'VOLTAR'
-        background_color: 1, 0, 0, 1
-        height: '40dp'
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.41, 'y': 0.3}
-        on_release: root.manager.current = 'supervisor_screen'
-    Label:
-        id: letreiro_feed_back
-        text: ''
-        color: 1, 1, 1, 1
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.4, 'y': 0.25}
+    FloatLayout:
+        Label:
+            id: letreiro_cadastro_vigilante
+            text: 'CADASTRO DE VIGILANTE'
+            size_hint: None, None
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.75}
+        TextInput:
+            id: nome_completo
+            hint_text: 'NOME COMPLETO'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.7}
+        TextInput:
+            id: login_vigilante
+            hint_text: 'USUÁRIO'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+        TextInput:
+            id: senha1_vigilante
+            hint_text: 'DIGITE UMA SENHA'
+            password: True
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
+        TextInput:
+            id: senha2_vigilante
+            hint_text: 'REPITA A SENHA'
+            password: True
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+        Button:
+            text: 'CADASTRAR VIGILANTE'
+            size_hint: 0.3, None
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            on_release: root.cadastrar_vigilante()
+        Button:
+            text: 'VOLTAR'
+            background_color: 1, 0, 0, 1
+            size_hint: 0.3, None
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
+            on_release: root.manager.current = 'supervisor_screen'
+        Label:
+            id: letreiro_feed_back
+            text: ''
+            size_hint: None, None
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.08}
 
 <RemoverVigilanteScreen>:
     canvas.before:
@@ -214,13 +208,24 @@ MeuGerenciador:
             pos: self.pos
             size: self.size
     name: "vigilante_screen"
-    GridLayout:
-        cols: 1
+    FloatLayout:
         Label:
             id: letreiro_vigilante
             text: ''
+            size_hint: None, None
             color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.56}
+        Button:
+            text: "REGISTRAR OCORRÊNCIA"
+            size_hint: 0.3, None
+            font_size: '18sp'
+            height: '50dp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
             text: "Sair"
+            size_hint: 0.15, None
+            font_size: '18sp'
+            height: '50dp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
             background_color: 1, 0, 0, 1
             on_release: app.root.current = "login_screen"
