@@ -10,9 +10,15 @@ from kivy.uix.button import Button
 import requests
 
 API_URL = "http://186.225.224.185:5000"
-nome_usuario_letreiro = ''
 
-#Função de login
+
+class AppState:
+    usuario_get = ""
+    nome_usuario_letreiro = ''
+
+app_state = AppState()
+
+
 def login_usuario(nome_usuario, senha):
     payload = {
         "username": nome_usuario,
@@ -22,29 +28,36 @@ def login_usuario(nome_usuario, senha):
         response = requests.post(f"{API_URL}/login", json=payload)
         if response.status_code == 200:
             dados = response.json()
-            global nome_usuario_letreiro
-            nome_usuario_letreiro = dados.get("nome", "")
+            app_state.nome_usuario_letreiro = dados.get("nome", "")
+            app_state.usuario_get = dados.get("login", "")
             return dados.get("cargo", "usuario_nao_encontrado")
         elif response.status_code == 401:
             return "senha_incorreta"
+        elif response.status_code == 403:
+            return "usuario_ja_conectado"
         else:
             return "usuario_nao_encontrado"
     except requests.exceptions.RequestException as e:
         return "erro_conexao_api"
 
 
-def logout_usuario(nome_usuario):
-    payload = {
-        "username": nome_usuario
-    }
+def logout_usuario():
+    if not app_state.usuario_get:
+        print("Erro: Nenhum usuário conectado para desconectar.")
+        return "nenhum_usuario_conectado"
+
     try:
-        response = requests.post(f"{API_URL}/logout", json=payload)
+        response = requests.post(f"{API_URL}/logout", json={"username": app_state.usuario_get})
         if response.status_code == 200:
-            return "Logout bem-sucedido!"
+            print(f"Usuário desconectado: {app_state.usuario_get}")
+            app_state.usuario_get = ""
+            return "logout_sucesso"
         else:
-            return "Erro no logout"
+            print("Erro ao desconectar o usuário.")
+            return "erro_logout"
     except requests.exceptions.RequestException as e:
-        return "Erro ao se conectar à API para logout"
+        print("Erro de conexão com a API.")
+        return "erro_conexao_api"
 
 
 class LoginScreen(Screen):
@@ -68,9 +81,11 @@ class LoginScreen(Screen):
             self.show_popup("Erro de senha", "Senha incorreta")
         elif cargo == "usuario_nao_encontrado":
             self.show_popup("Erro de Login", "Usuário não encontrado")
+        elif cargo == "usuario_ja_conectado":
+            self.show_popup("Erro de Login", "Usuário já conectado em outro dispositivo.")
         elif cargo == "erro_conexao_api":
             self.show_popup("Erro de Login", "Servidor indisponível no momento.")
-    
+
 
     def show_popup(self, titulo, mensagem):
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
@@ -90,18 +105,25 @@ class LoginScreen(Screen):
 
 class SupervisorScreen(Screen):
     def atualizar_label(self):
-        global nome_usuario_letreiro
-        self.ids.letreiro.text = f'BEM VINDO {nome_usuario_letreiro}'
-    pass
+        self.ids.letreiro.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
+
+
+    def desconectar(self):
+        if app_state.usuario_get:
+            resultado = logout_usuario()
+            if resultado == "logout_sucesso":
+                app_state.usuario_get = ""
+                self.manager.current = "login_screen"
 
 
 class CadastroVigilanteScreen(Screen):
     def cadastrar_vigilante(self):
         nome_completo = self.ids.nome_completo.text.strip().upper()
         login_vigilante = self.ids.login_vigilante.text.strip()
+        matricula = self.ids.matricula.text.strip()
         senha1 = self.ids.senha1_vigilante.text.strip()
         senha2 = self.ids.senha2_vigilante.text.strip()
-        if not nome_completo or not login_vigilante or not senha1 or not senha2:
+        if not nome_completo or not login_vigilante or not senha1 or not senha2 or not matricula:
             self.ids.letreiro_feed_back.text = "Preencha todos os campos!"
             self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
             return
@@ -112,6 +134,7 @@ class CadastroVigilanteScreen(Screen):
         payload = {
             "nome": nome_completo,
             "login": login_vigilante,
+            'matricula': matricula,
             "senha": senha1
         }
         try:
@@ -122,6 +145,7 @@ class CadastroVigilanteScreen(Screen):
                 self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
                 self.ids.nome_completo.text = ""
                 self.ids.login_vigilante.text = ""
+                self.ids.matricula.text = ""
                 self.ids.senha1_vigilante.text = ""
                 self.ids.senha2_vigilante.text = ""
             elif response.status_code == 400:
@@ -173,7 +197,7 @@ class RemoverVigilanteScreen(Screen):
         content.add_widget(buttons)
         popup = Popup(title="Confirmação", content=content, size_hint=(0.6, 0.4), auto_dismiss=False)
         popup.open()
-    
+
 
     def confirmar_remocao(self, popup, nome_vigilante):
         try:
@@ -185,8 +209,8 @@ class RemoverVigilanteScreen(Screen):
             self.show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
         finally:
             popup.dismiss()
-        
-    
+
+
     def show_popup(self, titulo, mensagem):
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
         content.add_widget(Label(text=mensagem))
@@ -206,8 +230,20 @@ class RemoverVigilanteScreen(Screen):
 
 class VigilanteScreen(Screen):
     def atualizar_label(self):
-        global nome_usuario_letreiro
-        self.ids.letreiro_vigilante.text = f'BEM VINDO {nome_usuario_letreiro}'
+        self.ids.letreiro_vigilante.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
+    
+
+    def desconectar(self):
+        if app_state.usuario_get:
+            resultado = logout_usuario()
+            if resultado == "logout_sucesso":
+                app_state.usuario_get = ""
+                self.manager.current = "login_screen"
+
+    pass
+
+
+class OcorrenciaScreen(Screen):
     pass
 
 
@@ -222,10 +258,7 @@ class MeuAplicativo(App):
     
 
     def fechar_aplicativo(self):
-        if nome_usuario_letreiro:
-            logout_usuario(nome_usuario_letreiro)
         App.get_running_app().stop()
-        sys.exit(0) 
 
 
 MeuAplicativo().run()

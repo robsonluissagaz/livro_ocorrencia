@@ -4,6 +4,7 @@ MeuGerenciador:
     VigilanteScreen:
     CadastroVigilanteScreen:
     RemoverVigilanteScreen:
+    OcorrenciaScreen:
 
 <LoginScreen>:
     canvas.before:
@@ -87,7 +88,7 @@ MeuGerenciador:
             height: '50dp'
             background_color: 1, 0, 0, 1
             pos_hint: {'center_x': 0.5, 'y': 0.3}
-            on_release: root.manager.current = 'login_screen'
+            on_release: root.desconectar()
 
 <CadastroVigilanteScreen>:
     canvas.before:
@@ -113,13 +114,21 @@ MeuGerenciador:
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.7}
         TextInput:
+            id: matricula
+            hint_text: 'MATRÍCULA'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+        TextInput:
             id: login_vigilante
             hint_text: 'USUÁRIO'
             multiline: False
             size_hint: 0.5, 0.06
             height: '50dp'
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.6}
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
         TextInput:
             id: senha1_vigilante
             hint_text: 'DIGITE UMA SENHA'
@@ -128,7 +137,7 @@ MeuGerenciador:
             size_hint: 0.5, 0.06
             height: '50dp'
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.5}
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
         TextInput:
             id: senha2_vigilante
             hint_text: 'REPITA A SENHA'
@@ -137,28 +146,28 @@ MeuGerenciador:
             size_hint: 0.5, 0.06
             height: '50dp'
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
         Button:
             text: 'CADASTRAR VIGILANTE'
             size_hint: 0.3, None
             height: '50dp'
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.cadastrar_vigilante()
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
-            size_hint: 0.3, None
+            size_hint: 0.15, None
             height: '50dp'
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.2}
+            pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'supervisor_screen'
         Label:
             id: letreiro_feed_back
             text: ''
             size_hint: None, None
             color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.08}
+            pos_hint: {'center_x': 0.5, 'y': 0.04}
 
 <RemoverVigilanteScreen>:
     canvas.before:
@@ -168,37 +177,35 @@ MeuGerenciador:
             pos: self.pos
             size: self.size
     name: 'remover_vigilante'
-    Label:
-        text: 'REMOVER CADASTRO'
-        color: 0, 0, 0, 1
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.4, 'y': 0.65}
-    TextInput:
-        id: nome_vigilante_remover
-        hint_text: 'NOME COMPLETO'
-        multiline: False
-        size_hint_x: None
-        size_hint_y: None
-        width: 300
-        height: '30dp'
-        pos_hint: {'x': 0.3, 'y': 0.6}
-    Button:
-        text: 'REMOVER CADASTRO'
-        width: self.texture_size[0] + 20
-        height: '40dp'
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.36, 'y': 0.5}
-        on_release: root.remover_vigilante()
-    Button:
-        text: 'VOLTAR'
-        background_color: 1, 0, 0, 1
-        height: '40dp'
-        size_hint_x: None
-        size_hint_y: None
-        pos_hint: {'x': 0.40, 'y': 0.4}
-        on_release: root.manager.current = 'supervisor_screen'
+    FloatLayout:
+        Label:
+            text: 'REMOVER CADASTRO'
+            color: 0, 0, 0, 1
+            size_hint: None, None
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+        TextInput:
+            id: nome_vigilante_remover
+            hint_text: 'NOME COMPLETO'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
+        Button:
+            text: 'REMOVER CADASTRO'
+            size_hint: 0.3, None
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            on_release: root.remover_vigilante()
+        Button:
+            text: 'VOLTAR'
+            background_color: 1, 0, 0, 1
+            size_hint: 0.15, None
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            on_release: root.manager.current = 'supervisor_screen'
 
 <VigilanteScreen>:
     canvas.before:
@@ -221,6 +228,7 @@ MeuGerenciador:
             font_size: '18sp'
             height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
+            on_release: root.manager.current = 'ocorrencia_screen'
         Button:
             text: "Sair"
             size_hint: 0.15, None
@@ -228,4 +236,35 @@ MeuGerenciador:
             height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             background_color: 1, 0, 0, 1
-            on_release: app.root.current = "login_screen"
+            on_release: root.desconectar()
+
+<OcorrenciaScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: "ocorrencia_screen"
+    FloatLayout:
+        Label:
+            text: 'REGISTRAR OCORRÊNCIA'
+            color: 0, 0, 0, 1
+            size_hint: None, None
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+        TextInput:
+            id: nome_posto
+            hint_text: 'NOME DO POSTO'
+            multiline: False
+            size_hint: 0.5, 0.06
+            height: '50dp'
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
+        Button:
+            text: "VOLTAR"
+            size_hint: 0.15, None
+            font_size: '18sp'
+            height: '50dp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            background_color: 1, 0, 0, 1
+            on_release: root.manager.current = "vigilante_screen"
