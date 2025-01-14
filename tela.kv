@@ -24,7 +24,6 @@ MeuGerenciador:
             hint_text: 'USUÁRIO'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.55}
         TextInput:
@@ -33,20 +32,17 @@ MeuGerenciador:
             password: True
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.45}
         Button:
             text: 'ENTRAR'
-            size_hint: 0.3, None
-            height: '50dp'
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.35}
             on_release: root.verificar_login()
         Button:
             text: 'FECHAR'
-            size_hint: 0.15, None
-            height: '50dp'
+            size_hint: 0.15, 0.08
             font_size: '18sp'
             background_color: 1, 0, 0, 1
             pos_hint: {'center_x': 0.5, 'y': 0.25}
@@ -69,23 +65,20 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.55}
         Button:
             text: 'CADASTRAR VIGILANTE'
-            size_hint: 0.3, None
+            size_hint: 0.3, 0.08
             font_size: '18sp'
-            height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.manager.current = 'cadastro_vigilante'
         Button:
             text: 'REMOVER VIGILANTE'
-            size_hint: 0.3, None
+            size_hint: 0.3, 0.08
             font_size: '18sp'
-            height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             on_release: root.manager.current = 'remover_vigilante'
         Button:
             text: 'SAIR'
-            size_hint: 0.15, None
+            size_hint: 0.15, 0.08
             font_size: '18sp'
-            height: '50dp'
             background_color: 1, 0, 0, 1
             pos_hint: {'center_x': 0.5, 'y': 0.3}
             on_release: root.desconectar()
@@ -110,7 +103,6 @@ MeuGerenciador:
             hint_text: 'NOME COMPLETO'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.7}
         TextInput:
@@ -118,7 +110,6 @@ MeuGerenciador:
             hint_text: 'MATRÍCULA'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
         TextInput:
@@ -126,7 +117,6 @@ MeuGerenciador:
             hint_text: 'USUÁRIO'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         TextInput:
@@ -135,7 +125,6 @@ MeuGerenciador:
             password: True
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
         TextInput:
@@ -144,21 +133,18 @@ MeuGerenciador:
             password: True
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.3}
         Button:
             text: 'CADASTRAR VIGILANTE'
-            size_hint: 0.3, None
-            height: '50dp'
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.cadastrar_vigilante()
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
-            size_hint: 0.15, None
-            height: '50dp'
+            size_hint: 0.15, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'supervisor_screen'
@@ -188,21 +174,18 @@ MeuGerenciador:
             hint_text: 'NOME COMPLETO'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
             text: 'REMOVER CADASTRO'
-            size_hint: 0.3, None
-            height: '50dp'
+            size_hint: (0.3, 0.08)
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             on_release: root.remover_vigilante()
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
-            size_hint: 0.15, None
-            height: '50dp'
+            size_hint: (0.3, 0.08)
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.3}
             on_release: root.manager.current = 'supervisor_screen'
@@ -224,16 +207,14 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.56}
         Button:
             text: "REGISTRAR OCORRÊNCIA"
-            size_hint: 0.3, None
+            size_hint: 0.3, 0.08
             font_size: '18sp'
-            height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.manager.current = 'ocorrencia_screen'
         Button:
             text: "Sair"
-            size_hint: 0.15, None
+            size_hint: 0.15, 0.08
             font_size: '18sp'
-            height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             background_color: 1, 0, 0, 1
             on_release: root.desconectar()
@@ -257,14 +238,12 @@ MeuGerenciador:
             hint_text: 'NOME DO POSTO'
             multiline: False
             size_hint: 0.5, 0.06
-            height: '50dp'
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
             text: "VOLTAR"
-            size_hint: 0.15, None
+            size_hint: 0.15, 0.08
             font_size: '18sp'
-            height: '50dp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             background_color: 1, 0, 0, 1
             on_release: root.manager.current = "vigilante_screen"
