@@ -2,11 +2,11 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import mysql.connector
-import sys
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.properties import ObjectProperty
 import requests
 
 API_URL = "http://186.225.224.185:5000"
@@ -15,8 +15,24 @@ API_URL = "http://186.225.224.185:5000"
 class AppState:
     usuario_get = ""
     nome_usuario_letreiro = ''
+    matricula_get = ''
 
 app_state = AppState()
+
+def show_popup(titulo, mensagem):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text=mensagem))
+        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
+        btn_layout.add_widget(Label())
+        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
+        btn_layout.add_widget(Label())
+        content.add_widget(btn_layout)
+        popup = Popup(
+            title=titulo,
+            content=content,
+            size_hint=(0.6, 0.4),
+            auto_dismiss=False,)
+        popup.open()
 
 
 def login_usuario(nome_usuario, senha):
@@ -30,6 +46,7 @@ def login_usuario(nome_usuario, senha):
             dados = response.json()
             app_state.nome_usuario_letreiro = dados.get("nome", "")
             app_state.usuario_get = dados.get("login", "")
+            app_state.matricula_get = dados.get("matricula", "")
             return dados.get("cargo", "usuario_nao_encontrado")
         elif response.status_code == 401:
             return "senha_incorreta"
@@ -49,8 +66,9 @@ def logout_usuario():
     try:
         response = requests.post(f"{API_URL}/logout", json={"username": app_state.usuario_get})
         if response.status_code == 200:
-            print(f"Usuário desconectado: {app_state.usuario_get}")
             app_state.usuario_get = ""
+            app_state.nome_usuario_letreiro = ""
+            app_state.matricula_get = ""
             return "logout_sucesso"
         else:
             print("Erro ao desconectar o usuário.")
@@ -78,29 +96,14 @@ class LoginScreen(Screen):
             vigilante_screen.atualizar_label()
             self.manager.current = "vigilante_screen"
         elif cargo == "senha_incorreta":
-            self.show_popup("Erro de senha", "Senha incorreta")
+            show_popup("Erro de senha", "Senha incorreta")
         elif cargo == "usuario_nao_encontrado":
-            self.show_popup("Erro de Login", "Usuário não encontrado")
+            show_popup("Erro de Login", "Usuário não encontrado")
         elif cargo == "usuario_ja_conectado":
-            self.show_popup("Erro de Login", "Usuário já conectado em outro dispositivo.")
+            show_popup("Erro de Login", "Usuário já conectado em outro dispositivo.")
         elif cargo == "erro_conexao_api":
-            self.show_popup("Erro de Login", "Servidor indisponível no momento.")
+            show_popup("Erro de Login", "Servidor indisponível no momento.")
 
-
-    def show_popup(self, titulo, mensagem):
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=mensagem))
-        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
-        btn_layout.add_widget(Label())
-        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
-        btn_layout.add_widget(Label())
-        content.add_widget(btn_layout)
-        popup = Popup(
-            title=titulo,
-            content=content,
-            size_hint=(0.6, 0.4),
-            auto_dismiss=False,)
-        popup.open()
 
 
 class SupervisorScreen(Screen):
@@ -204,27 +207,13 @@ class RemoverVigilanteScreen(Screen):
             query = "DELETE FROM vigilantes WHERE nome = %s"
             self.cursor.execute(query, (nome_vigilante,))
             self.conn.commit()
-            self.show_popup("Sucesso", f"Usuário '{nome_vigilante}' removido com sucesso.")
+            show_popup("Sucesso", f"Usuário '{nome_vigilante}' removido com sucesso.")
         except mysql.connector.Error as e:
-            self.show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
+            show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
         finally:
             popup.dismiss()
 
 
-    def show_popup(self, titulo, mensagem):
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=mensagem))
-        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
-        btn_layout.add_widget(Label())
-        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
-        btn_layout.add_widget(Label())
-        content.add_widget(btn_layout)
-        popup = Popup(
-            title=titulo,
-            content=content,
-            size_hint=(0.6, 0.4),
-            auto_dismiss=False,)
-        popup.open()
     pass
 
 
@@ -244,6 +233,41 @@ class VigilanteScreen(Screen):
 
 
 class OcorrenciaScreen(Screen):
+    def registrar_ocorrencia(self):
+        posto = self.ids.posto.text.strip().upper()
+        vigilante = app_state.nome_usuario_letreiro
+        matricula = app_state.matricula_get
+        ocorrido = self.ids.ocorrido.text.strip().upper()
+        if not matricula.isnumeric():
+            show_popup('Erro', 'Formato da matrícula inválido, digite somente números...')
+        elif not all([ posto, vigilante,  matricula, ocorrido]):
+            show_popup('Erro', 'Por favor preencha todos os campos')
+            return
+        dados_ocorrencia = {
+            'posto': posto,
+            'vigilante': vigilante,
+            'matricula': matricula,
+            'ocorrido': ocorrido
+        }
+        try:
+            response = requests.post(f'{API_URL}/ocorrencias', json=dados_ocorrencia)
+            if response.status_code == 201:
+                show_popup('Sucesso', 'Ocorrência registrado com sucesso')
+                self.ids.posto.text = ''
+                self.ids.matricula.text = ''
+                self.ids.ocorrido.text = ''
+            else:
+                show_popup('Erro', 'Erro desconhecido')
+        except requests.exceptions.RequestException as e:
+            show_popup('Erro', f'Erro de conexão {e}')
+    pass
+
+
+class RelatorioOcorrenciaScreen(Screen):
+    def voltar(self):
+        self.ids.pesquisa_posto.text = ''
+        self.ids.pesquisa_vigilante.text = ''
+        self.manager.current = "supervisor_screen"
     pass
 
 
