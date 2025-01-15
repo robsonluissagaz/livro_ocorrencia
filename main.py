@@ -47,6 +47,7 @@ def login_usuario(nome_usuario, senha):
             app_state.nome_usuario_letreiro = dados.get("nome", "")
             app_state.usuario_get = dados.get("login", "")
             app_state.matricula_get = dados.get("matricula", "")
+            print(f'A matrícula é {app_state.matricula_get}')
             return dados.get("cargo", "usuario_nao_encontrado")
         elif response.status_code == 401:
             return "senha_incorreta"
@@ -127,12 +128,10 @@ class CadastroVigilanteScreen(Screen):
         senha1 = self.ids.senha1_vigilante.text.strip()
         senha2 = self.ids.senha2_vigilante.text.strip()
         if not nome_completo or not login_vigilante or not senha1 or not senha2 or not matricula:
-            self.ids.letreiro_feed_back.text = "Preencha todos os campos!"
-            self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+            show_popup('Erro', 'Preencha todos os campos')
             return
-        if senha1 != senha2:
-            self.ids.letreiro_feed_back.text = "As senhas não coincidem!"
-            self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+        elif senha1 != senha2:
+            show_popup('Erro', 'As senhas devem ser iguais')
             return
         payload = {
             "nome": nome_completo,
@@ -144,24 +143,18 @@ class CadastroVigilanteScreen(Screen):
 
             response = requests.post(f"{API_URL}/vigilantes", json=payload)
             if response.status_code == 201:
-                self.ids.letreiro_feed_back.text = "Vigilante cadastrado com sucesso!"
-                self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
+                show_popup('Sucesso', 'Vigilante cadastrado com sucesso')
                 self.ids.nome_completo.text = ""
                 self.ids.login_vigilante.text = ""
                 self.ids.matricula.text = ""
                 self.ids.senha1_vigilante.text = ""
                 self.ids.senha2_vigilante.text = ""
             elif response.status_code == 400:
-                erro = response.json().get("error", "Erro ao cadastrar vigilante!")
-                self.ids.letreiro_feed_back.text = erro
-                self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                show_popup('Erro', 'Erro 400 ao cadastrar o vigilante')
             else:
-                self.ids.letreiro_feed_back.text = "Erro desconhecido ao cadastrar!"
-                self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                show_popup('Erro', 'Erro desconhecido ao cadastrar o vigilante')
         except requests.exceptions.RequestException as e:
-            self.ids.letreiro_feed_back.text = "Erro ao se conectar à API!"
-            self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
-            print(f"Erro de conexão com a API: {e}")
+            show_popup('Erro', f'{e}')
 
 
 class RemoverVigilanteScreen(Screen):
@@ -238,9 +231,7 @@ class OcorrenciaScreen(Screen):
         vigilante = app_state.nome_usuario_letreiro
         matricula = app_state.matricula_get
         ocorrido = self.ids.ocorrido.text.strip().upper()
-        if not matricula.isnumeric():
-            show_popup('Erro', 'Formato da matrícula inválido, digite somente números...')
-        elif not all([ posto, vigilante,  matricula, ocorrido]):
+        if not all([ posto, vigilante,  matricula, ocorrido]):
             show_popup('Erro', 'Por favor preencha todos os campos')
             return
         dados_ocorrencia = {

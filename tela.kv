@@ -120,6 +120,9 @@ MeuGerenciador:
             size_hint: 0.5, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
+            input_filter: 'int'
+            input_type: 'number'
+            on_text: if not self.text.isdigit(): self.text = ''.join(filter(str.isdigit, self.text))
         TextInput:
             id: login_vigilante
             hint_text: 'USUÁRIO'
@@ -156,12 +159,6 @@ MeuGerenciador:
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'supervisor_screen'
-        Label:
-            id: letreiro_feed_back
-            text: ''
-            size_hint: None, None
-            color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.04}
 
 <RelatorioOcorrenciaScreen>:
     canvas.before:
