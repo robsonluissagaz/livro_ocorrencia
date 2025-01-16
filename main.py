@@ -56,7 +56,7 @@ def login_usuario(nome_usuario, senha):
         else:
             return "usuario_nao_encontrado"
     except requests.exceptions.RequestException as e:
-        return "erro_conexao_api"
+        return f"erro_conexao_api {e}"
 
 
 def logout_usuario():
@@ -161,30 +161,23 @@ class RemoverVigilanteScreen(Screen):
     def remover_vigilante(self):
         nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
         if not nome_vigilante:
-            self.ids.letreiro_feed_back.text = "Preencha o nome do vigilante!"
-            self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+            show_popup('Erro', 'Preencha o nome do vigilante')
             return
         def confirmar_remocao(instance):
             popup.dismiss()
             try:
                 response = requests.delete(f"{API_URL}/vigilantes", json={"nome": nome_vigilante})
                 if response.status_code == 200:
-                    self.ids.letreiro_feed_back.text = "Vigilante removido com sucesso!"
-                    self.ids.letreiro_feed_back.color = (0, 1, 0, 1)
+                    show_popup('Sucesso', 'Vigilante removido com sucesso')
                     self.ids.nome_vigilante_remover.text = ""
                 elif response.status_code == 400:
-                    erro = response.json().get("error", "Erro ao remover vigilante!")
-                    self.ids.letreiro_feed_back.text = erro
-                    self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                    show_popup('Erro', 'Erro ao remover vigilante')
                 else:
-                    self.ids.letreiro_feed_back.text = "Erro desconhecido ao remover!"
-                    self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
+                    show_popup('Erro', 'Erro desconhecido')
             except requests.exceptions.RequestException as e:
-                self.ids.letreiro_feed_back.text = "Erro ao se conectar à API!"
-                self.ids.letreiro_feed_back.color = (1, 0, 0, 1)
-                print(f"Erro de conexão com a API: {e}")
+                show_popup('Erro', f'Erro de conexão com a API{e}')
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=f"Tem certeza que deseja remover '{nome_vigilante}'?"))
+        content.add_widget(Label(text=f"Tem certeza que deseja remover '{nome_vigilante} '?"))
         buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
         btn_confirmar = Button(text="Sim", on_release=confirmar_remocao)
         btn_cancelar = Button(text="Cancelar", on_release=lambda instance: popup.dismiss())
@@ -205,8 +198,6 @@ class RemoverVigilanteScreen(Screen):
             show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
         finally:
             popup.dismiss()
-
-
     pass
 
 
@@ -221,7 +212,6 @@ class VigilanteScreen(Screen):
             if resultado == "logout_sucesso":
                 app_state.usuario_get = ""
                 self.manager.current = "login_screen"
-
     pass
 
 
@@ -243,9 +233,8 @@ class OcorrenciaScreen(Screen):
         try:
             response = requests.post(f'{API_URL}/ocorrencias', json=dados_ocorrencia)
             if response.status_code == 201:
-                show_popup('Sucesso', 'Ocorrência registrado com sucesso')
+                show_popup('Sucesso', 'Ocorrência registrada com sucesso')
                 self.ids.posto.text = ''
-                self.ids.matricula.text = ''
                 self.ids.ocorrido.text = ''
             else:
                 show_popup('Erro', 'Erro desconhecido')
