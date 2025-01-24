@@ -7,7 +7,6 @@ MeuGerenciador:
     OcorrenciaScreen:
     RelatorioOcorrenciaScreen:
 
-
 <LoginScreen>:
     canvas.before:
         Color:
@@ -20,12 +19,13 @@ MeuGerenciador:
         Image:
             source: 'grupoft.png'
             size_hint: 1, 1
-            pos_hint: {"center_x": 0.5, "y": 0.30}
+            pos_hint: {'center_x': 0.5, 'y': 0.25}
+            allow_stretch: True
         TextInput:
             id: nome_usuario
             hint_text: 'USUÁRIO'
             multiline: False
-            size_hint: 0.4, 0.06
+            size_hint: 0.6, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.55}
         TextInput:
@@ -33,7 +33,7 @@ MeuGerenciador:
             hint_text: 'SENHA'
             password: True
             multiline: False
-            size_hint: 0.4, 0.06
+            size_hint: 0.6, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.45}
         Button:
@@ -44,7 +44,7 @@ MeuGerenciador:
             on_release: root.verificar_login()
         Button:
             text: 'FECHAR'
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             background_color: 1, 0, 0, 1
             pos_hint: {'center_x': 0.5, 'y': 0.25}
@@ -64,31 +64,31 @@ MeuGerenciador:
             text: ''
             size_hint: None, None
             color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.75}
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
         Button:
             text: 'CADASTRAR VIGILANTE'
-            size_hint: 0.3, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.7}
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.manager.current = 'cadastro_vigilante'
         Button:
             text: 'REMOVER VIGILANTE'
-            size_hint: 0.3, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.6}
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
             on_release: root.manager.current = 'remover_vigilante'
         Button:
             text: 'RELATÓRIO DE OCORRÊNCIAS'
-            size_hint: 0.32, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.5}
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
             on_release: root.manager.current = 'relatorio_ocorrencia'
         Button:
             text: 'SAIR'
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             background_color: 1, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.desconectar()
 
 <CadastroVigilanteScreen>:
@@ -148,14 +148,14 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.3}
         Button:
             text: 'CADASTRAR VIGILANTE'
-            size_hint: 0.3, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.cadastrar_vigilante()
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'supervisor_screen'
@@ -173,26 +173,26 @@ MeuGerenciador:
             id: pesquisa_posto
             hint_text: 'PESQUISA POR POSTO'
             multiline: False
-            size_hint: 0.4, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
-            pos_hint: {'center_x': 0.25, 'y': 0.7}
+            pos_hint: {'center_x': 0.5, 'y': 0.7}
         Button:
             text: 'PESQUISAR'
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.25, 'y': 0.6}
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
         TextInput:
             id: pesquisa_vigilante
-            hint_text: 'PESQUISA POR NOME DO VIGILANTE'
+            hint_text: 'PESQUISA POR NOME'
             multiline: False
-            size_hint: 0.4, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
-            pos_hint: {'center_x': 0.25, 'y': 0.5}
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
             text: 'PESQUISAR'
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.25, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
         RecycleView:
             id: rv
             size_hint: 0.8, 0.3
@@ -208,9 +208,9 @@ MeuGerenciador:
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.25, 'y': 0.2}
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.voltar()
 
 <RemoverVigilanteScreen>:
@@ -236,7 +236,7 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
             text: 'REMOVER CADASTRO'
-            size_hint: (0.3, 0.08)
+            size_hint: (0.7, 0.08)
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             on_release: root.remover_vigilante()
@@ -271,7 +271,7 @@ MeuGerenciador:
             on_release: root.manager.current = 'ocorrencia_screen'
         Button:
             text: "Sair"
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
             background_color: 1, 0, 0, 1
@@ -313,7 +313,7 @@ MeuGerenciador:
             on_release: root.registrar_ocorrencia()
         Button:
             text: "VOLTAR"
-            size_hint: 0.15, 0.08
+            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.05}
             background_color: 1, 0, 0, 1
