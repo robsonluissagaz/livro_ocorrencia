@@ -6,6 +6,7 @@ MeuGerenciador:
     RemoverVigilanteScreen:
     OcorrenciaScreen:
     RelatorioOcorrenciaScreen:
+    RelatorioOcorrenciaScreen2:
 
 <LoginScreen>:
     canvas.before:
@@ -20,7 +21,7 @@ MeuGerenciador:
             source: 'grupoft.png'
             size_hint: 1, 1
             pos_hint: {'center_x': 0.5, 'y': 0.25}
-            allow_stretch: True
+            fit_mode: "fill"
         TextInput:
             id: nome_usuario
             hint_text: 'USUÁRIO'
@@ -181,9 +182,10 @@ MeuGerenciador:
             size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
+            on_release: root.manager.current = 'relatorio_ocorrencia2'
         TextInput:
-            id: pesquisa_vigilante
-            hint_text: 'PESQUISA POR NOME'
+            id: pesquisa_matricula
+            hint_text: 'PESQUISA POR MATRÍCULA'
             multiline: False
             size_hint: 0.7, 0.06
             font_size: '18sp'
@@ -193,18 +195,7 @@ MeuGerenciador:
             size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
-        RecycleView:
-            id: rv
-            size_hint: 0.8, 0.3
-            pos_hint: {'center_x': 0.7, 'y': 0.7}
-            viewclass: 'Label'
-            RecycleBoxLayout:
-                default_size: None, dp(30)
-                default_size_hint: 1, None
-                size_hint_y: None
-                height: self.minimum_height
-                orientation: 'vertical'
-                background_color: 1, 0, 0, 1
+            on_release: root.manager.current = 'relatorio_ocorrencia2'
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
@@ -212,6 +203,30 @@ MeuGerenciador:
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.voltar()
+
+<RelatorioOcorrenciaScreen2>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: 'relatorio_ocorrencia2'
+    on_pre_enter: root.carregar_ocorrencias()
+    FloatLayout:
+        Label:
+            id: ocorrencia_get
+            text: 'Buscando ocorrências...'
+            size_hint: None, None
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.8}
+        Button:
+            text: 'VOLTAR'
+            background_color: 1, 0, 0, 1
+            size_hint: 0.3, 0.08
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.1}
+            on_release: root.manager.current = 'relatorio_ocorrencia'
 
 <RemoverVigilanteScreen>:
     canvas.before:

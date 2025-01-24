@@ -1,14 +1,13 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-import mysql.connector
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.properties import ObjectProperty
+from kivy.uix.recycleview import RecycleView
 import requests
-
+import mysql.connector
 API_URL = "http://186.225.224.185:5000"
 
 
@@ -47,7 +46,6 @@ def login_usuario(nome_usuario, senha):
             app_state.nome_usuario_letreiro = dados.get("nome", "")
             app_state.usuario_get = dados.get("login", "")
             app_state.matricula_get = dados.get("matricula", "")
-            print(f'A matrícula é {app_state.matricula_get}')
             return dados.get("cargo", "usuario_nao_encontrado")
         elif response.status_code == 401:
             return "senha_incorreta"
@@ -249,6 +247,35 @@ class RelatorioOcorrenciaScreen(Screen):
         self.ids.pesquisa_vigilante.text = ''
         self.manager.current = "supervisor_screen"
     pass
+
+
+class RelatorioOcorrenciaScreen2(Screen):
+    def on_pre_enter(self):
+        self.carregar_ocorrencias()
+
+
+    def carregar_ocorrencias(self):
+        sm = self.manager
+        matricula = sm.get_screen('relatorio_ocorrencia').ids.pesquisa_matricula.text.strip()
+        if not matricula:
+            self.ids.ocorrencia_get.text = "Digite uma matrícula válida!"
+            return
+        try:
+            response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
+            if response.status_code == 200:
+                ocorrencias = response.json()
+                if not ocorrencias:
+                    self.ids.ocorrencia_get.text = "Nenhuma ocorrência encontrada."
+                else:
+                    texto_ocorrencias = "\n".join(
+                        [f"{oc['data_ocorrencia']}: {oc['ocorrido']}" for oc in ocorrencias]
+                    )
+                    self.ids.ocorrencia_get.text = texto_ocorrencias
+            else:
+                self.ids.ocorrencia_get.text = f"Erro {response.status_code} ao buscar ocorrências."
+        except requests.exceptions.RequestException as e:
+            self.ids.ocorrencia_get.text = "Erro de conexão com a API!"
+            print("Erro:", e)
 
 
 class MeuGerenciador(ScreenManager):
