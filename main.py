@@ -24,7 +24,7 @@ def show_popup(titulo, mensagem):
         content.add_widget(Label(text=mensagem))
         btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
         btn_layout.add_widget(Label())
-        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.5, 1), on_release=lambda x: popup.dismiss()))
+        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.9, 1), on_release=lambda x: popup.dismiss()))
         btn_layout.add_widget(Label())
         content.add_widget(btn_layout)
         popup = Popup(

@@ -105,19 +105,19 @@ MeuGerenciador:
             text: 'CADASTRO DE VIGILANTE'
             size_hint: None, None
             color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.75}
+            pos_hint: {'center_x': 0.5, 'y': 0.80}
         TextInput:
             id: nome_completo
             hint_text: 'NOME COMPLETO'
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.7}
         TextInput:
             id: matricula
             hint_text: 'MATRÍCULA'
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
             input_filter: 'int'
@@ -127,7 +127,7 @@ MeuGerenciador:
             id: login_vigilante
             hint_text: 'USUÁRIO'
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         TextInput:
@@ -135,7 +135,7 @@ MeuGerenciador:
             hint_text: 'DIGITE UMA SENHA'
             password: True
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.4}
         TextInput:
@@ -143,7 +143,7 @@ MeuGerenciador:
             hint_text: 'REPITA A SENHA'
             password: True
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.3}
         Button:
@@ -231,7 +231,7 @@ MeuGerenciador:
             id: nome_vigilante_remover
             hint_text: 'NOME COMPLETO'
             multiline: False
-            size_hint: 0.5, 0.06
+            size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
         Button:
@@ -245,7 +245,7 @@ MeuGerenciador:
             background_color: 1, 0, 0, 1
             size_hint: (0.3, 0.08)
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.manager.current = 'supervisor_screen'
 
 <VigilanteScreen>:
@@ -262,10 +262,10 @@ MeuGerenciador:
             text: ''
             size_hint: None, None
             color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.56}
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
         Button:
             text: "REGISTRAR OCORRÊNCIA"
-            size_hint: 0.3, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.manager.current = 'ocorrencia_screen'
@@ -273,7 +273,7 @@ MeuGerenciador:
             text: "Sair"
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
             background_color: 1, 0, 0, 1
             on_release: root.desconectar()
 
@@ -307,7 +307,7 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.45}
         Button:
             text: "REGISTRAR OCORRÊNCIA"
-            size_hint: 0.3, 0.08
+            size_hint: 0.7, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.2}
             on_release: root.registrar_ocorrencia()
