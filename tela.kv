@@ -190,6 +190,9 @@ MeuGerenciador:
             size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
+            input_filter: 'int'
+            input_type: 'number'
+            on_text: if not self.text.isdigit(): self.text = ''.join(filter(str.isdigit, self.text))
         Button:
             text: 'PESQUISAR'
             size_hint: 0.3, 0.08
@@ -324,7 +327,7 @@ MeuGerenciador:
             text: "REGISTRAR OCORRÊNCIA"
             size_hint: 0.7, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.2}
+            pos_hint: {'center_x': 0.5, 'y': 0.35}
             on_release: root.registrar_ocorrencia()
         Button:
             text: "VOLTAR"

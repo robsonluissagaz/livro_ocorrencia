@@ -1,0 +1,19 @@
+1 - Mostrar lista de rolagem com ocorrencias cadastrada pelo vigilante apontado na tela anterior
+
+2 - Criar tela para visualizar ocorrencia apontada na tela anterior, de preferencia um pop up de rolagem
+
+3 - Criar banco de dados para as solicitações de uniformes e afins
+
+4 - Criar botão que leva até a tela de solicitação de uniformes no menu de vigilantes
+
+5 - Criar os widgets para a solicitação de uniforme
+
+6 - Criar botão que leva até a tela de relatório de solicitação de uniformes no menu de supervisor
+
+7 - Criar tela que contém caixa de pesquisa vigilante para relatório de uniformes
+
+8 - Criar pop up de rolagem que mostra a solicitação escolhida na tela anterior
+
+9 - Criar função que declara a solicitação de uniforme atendida
+
+10 - Tela no menu de vigilante que acompanha a solicitação de uniforme

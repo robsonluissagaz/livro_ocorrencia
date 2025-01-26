@@ -59,9 +59,7 @@ def login_usuario(nome_usuario, senha):
 
 def logout_usuario():
     if not app_state.usuario_get:
-        print("Erro: Nenhum usuário conectado para desconectar.")
         return "nenhum_usuario_conectado"
-
     try:
         response = requests.post(f"{API_URL}/logout", json={"username": app_state.usuario_get})
         if response.status_code == 200:
@@ -70,10 +68,8 @@ def logout_usuario():
             app_state.matricula_get = ""
             return "logout_sucesso"
         else:
-            print("Erro ao desconectar o usuário.")
             return "erro_logout"
     except requests.exceptions.RequestException as e:
-        print("Erro de conexão com a API.")
         return "erro_conexao_api"
 
 
@@ -244,7 +240,7 @@ class OcorrenciaScreen(Screen):
 class RelatorioOcorrenciaScreen(Screen):
     def voltar(self):
         self.ids.pesquisa_posto.text = ''
-        self.ids.pesquisa_vigilante.text = ''
+        self.ids.pesquisa_matricula.text = ''
         self.manager.current = "supervisor_screen"
     pass
 
