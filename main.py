@@ -6,8 +6,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.recycleview import RecycleView
+from kivy.properties import ObjectProperty
 import requests
 import mysql.connector
+from datetime import datetime
 API_URL = "http://186.225.224.185:5000"
 
 
@@ -134,7 +136,6 @@ class CadastroVigilanteScreen(Screen):
             "senha": senha1
         }
         try:
-
             response = requests.post(f"{API_URL}/vigilantes", json=payload)
             if response.status_code == 201:
                 show_popup('Sucesso', 'Vigilante cadastrado com sucesso')
@@ -198,7 +199,7 @@ class RemoverVigilanteScreen(Screen):
 class VigilanteScreen(Screen):
     def atualizar_label(self):
         self.ids.letreiro_vigilante.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
-    
+
 
     def desconectar(self):
         if app_state.usuario_get:
@@ -238,40 +239,66 @@ class OcorrenciaScreen(Screen):
 
 
 class RelatorioOcorrenciaScreen(Screen):
+    def carregar_ocorrencias(self):
+        pesquisa_matricula = self.ids.get("pesquisa_matricula")
+        if pesquisa_matricula:
+            matricula = pesquisa_matricula.text.strip()
+            if matricula:
+                self.manager.get_screen('relatorio_ocorrencia2').carregar_ocorrencias(matricula)
+                self.manager.current = 'relatorio_ocorrencia2'
+    
+
     def voltar(self):
         self.ids.pesquisa_posto.text = ''
         self.ids.pesquisa_matricula.text = ''
         self.manager.current = "supervisor_screen"
-    pass
 
 
 class RelatorioOcorrenciaScreen2(Screen):
-    def on_pre_enter(self):
-        self.carregar_ocorrencias()
+    def carregar_ocorrencias(self, matricula):
+        try:
+            response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
+            print("Resposta da API:", response.status_code, response.json())  # Debug
+            if response.status_code == 200:
+                ocorrencias = response.json()
+                rv = self.ids.rv_ocorrencias
+                if not ocorrencias:
+                    rv.data = [{"text": "Nenhuma ocorrência encontrada."}]
+                else:
+                    ocorrencias.sort(key=lambda oc: datetime.strptime(oc['data_ocorrencia'], "%a, %d %b %Y %H:%M:%S GMT"), reverse=True)
+                    rv.data = [
+                        {"text": f"{oc['id']} - {self.formatar_data(oc['data_ocorrencia'])}"}
+                        for oc in ocorrencias
+                    ]
+            else:
+                self.ids.rv_ocorrencias.data = [{"text": f"Erro {response.status_code} ao buscar ocorrências."}]
+        except requests.exceptions.RequestException as e:
+            self.ids.rv_ocorrencias.data = [{"text": "Erro de conexão com a API!"}]
+            show_popup('Erro', f'{e}')
 
 
-    def carregar_ocorrencias(self):
-        sm = self.manager
-        matricula = sm.get_screen('relatorio_ocorrencia').ids.pesquisa_matricula.text.strip()
-        if not matricula:
-            self.ids.ocorrencia_get.text = "Digite uma matrícula válida!"
-            return
+    def formatar_data(self, data_str):
+        try:
+            data_obj = datetime.strptime(data_str, "%a, %d %b %Y %H:%M:%S GMT")
+            return data_obj.strftime("%d/%m/%Y %H:%M:%S")
+        except ValueError:
+            return data_str
+    
+
+    def carregar_ocorrido(self,matricula):
         try:
             response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
             if response.status_code == 200:
                 ocorrencias = response.json()
-                if not ocorrencias:
-                    self.ids.ocorrencia_get.text = "Nenhuma ocorrência encontrada."
-                else:
-                    texto_ocorrencias = "\n".join(
-                        [f"{oc['data_ocorrencia']}: {oc['ocorrido']}" for oc in ocorrencias]
-                    )
-                    self.ids.ocorrencia_get.text = texto_ocorrencias
-            else:
-                self.ids.ocorrencia_get.text = f"Erro {response.status_code} ao buscar ocorrências."
+                rv = self.ids.rv_ocorrencias
+                rv.data = [
+                        {"text": f"{oc['ocorrido']}"}
+                        for oc in ocorrencias
+                    ]
         except requests.exceptions.RequestException as e:
-            self.ids.ocorrencia_get.text = "Erro de conexão com a API!"
-            print("Erro:", e)
+            self.ids.rv_ocorrencias.data = [{"text": "Erro de conexão com a API!"}]
+            show_popup('Erro', f'{e}')
+
 
 
 class MeuGerenciador(ScreenManager):
@@ -283,7 +310,7 @@ class MeuAplicativo(App):
     def build(self):
         return GUI
 
-    
+
     def on_stop(self):
       logout_usuario()
 
