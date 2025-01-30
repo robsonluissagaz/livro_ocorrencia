@@ -17,6 +17,7 @@ class AppState:
     usuario_get = ""
     nome_usuario_letreiro = ''
     matricula_get = ''
+    id_ocorrido_get = ''
 
 app_state = AppState()
 
@@ -239,6 +240,10 @@ class OcorrenciaScreen(Screen):
 
 
 class RelatorioOcorrenciaScreen(Screen):
+    def on_pre_enter(self):
+        self.ids.pesquisa_matricula.text = ''
+
+
     def carregar_ocorrencias(self):
         pesquisa_matricula = self.ids.get("pesquisa_matricula")
         if pesquisa_matricula:
@@ -255,10 +260,17 @@ class RelatorioOcorrenciaScreen(Screen):
 
 
 class RelatorioOcorrenciaScreen2(Screen):
+    def mostrar_item(self, texto):
+        partes = texto.split()
+        if partes:
+            self.id_selecionado = partes[0]
+            self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"{self.id_selecionado}"
+            self.manager.current = 'relatorio_ocorrencia3'
+
     def carregar_ocorrencias(self, matricula):
         try:
             response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
-            print("Resposta da API:", response.status_code, response.json())  # Debug
+            print("Resposta da API:", response.status_code, response.json())
             if response.status_code == 200:
                 ocorrencias = response.json()
                 rv = self.ids.rv_ocorrencias
@@ -285,20 +297,30 @@ class RelatorioOcorrenciaScreen2(Screen):
             return data_str
     
 
-    def carregar_ocorrido(self,matricula):
+    def buscar_ocorrido(self, texto):
+        partes = texto.split()
+        if partes:
+            self.id_selecionado = int(partes[0])
+            print(f"ID Selecionado: {self.id_selecionado}")
+            self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Selecionado: {self.id_selecionado}"
+        if not hasattr(self, "id_selecionado") or not self.id_selecionado:
+            show_popup("Erro", "Nenhum ID selecionado!")
         try:
-            response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
+            response = requests.get(f'{API_URL}/ocorrencia/{self.id_selecionado}')
             if response.status_code == 200:
-                ocorrencias = response.json()
-                rv = self.ids.rv_ocorrencias
-                rv.data = [
-                        {"text": f"{oc['ocorrido']}"}
-                        for oc in ocorrencias
-                    ]
+                dados = response.json()
+                ocorrido = dados.get("ocorrido", "Sem detalhes")
+                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}: {ocorrido}"
+                self.manager.current = 'relatorio_ocorrencia3'
+            else:
+                show_popup('Erro', 'Erro ao buscar o ocorrido')
         except requests.exceptions.RequestException as e:
-            self.ids.rv_ocorrencias.data = [{"text": "Erro de conexão com a API!"}]
             show_popup('Erro', f'{e}')
 
+ 
+
+class RelatorioOcorrenciaScreen3(Screen):
+    pass
 
 
 class MeuGerenciador(ScreenManager):
