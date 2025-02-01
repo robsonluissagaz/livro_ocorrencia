@@ -5,8 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.recycleview import RecycleView
-from kivy.properties import ObjectProperty
+from kivy.core.window import Window
 import requests
 import mysql.connector
 from datetime import datetime
@@ -77,6 +76,21 @@ def logout_usuario():
 
 
 class LoginScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+    
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            app = App.get_running_app()
+            app.fechar_aplicativo()
+            return True
+
+
     def verificar_login(self):
         nome = self.ids.nome_usuario.text
         senha = self.ids.senha_usuario.text
@@ -105,6 +119,14 @@ class LoginScreen(Screen):
 
 
 class SupervisorScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+    
+
     def atualizar_label(self):
         self.ids.letreiro.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
 
@@ -115,6 +137,12 @@ class SupervisorScreen(Screen):
             if resultado == "logout_sucesso":
                 app_state.usuario_get = ""
                 self.manager.current = "login_screen"
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.desconectar()
+            return True
 
 
 class CadastroVigilanteScreen(Screen):
@@ -151,6 +179,17 @@ class CadastroVigilanteScreen(Screen):
                 show_popup('Erro', 'Erro desconhecido ao cadastrar o vigilante')
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'{e}')
+        
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'supervisor_screen'
+            return True
 
 
 class RemoverVigilanteScreen(Screen):
@@ -197,6 +236,16 @@ class RemoverVigilanteScreen(Screen):
     pass
 
 
+    def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            Window.bind(on_keyboard=self.voltar_tela)
+        
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'supervisor_screen'
+            return True
+
 class VigilanteScreen(Screen):
     def atualizar_label(self):
         self.ids.letreiro_vigilante.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
@@ -208,6 +257,17 @@ class VigilanteScreen(Screen):
             if resultado == "logout_sucesso":
                 app_state.usuario_get = ""
                 self.manager.current = "login_screen"
+
+
+    def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            Window.bind(on_keyboard=self.voltar_tela)
+        
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.desconectar()
+            return True
     pass
 
 
@@ -236,12 +296,27 @@ class OcorrenciaScreen(Screen):
                 show_popup('Erro', 'Erro desconhecido')
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'Erro de conexão {e}')
+    
+    def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            Window.bind(on_keyboard=self.voltar_tela)
+        
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'vigilante_screen'
+            return True
     pass
 
 
 class RelatorioOcorrenciaScreen(Screen):
     def on_pre_enter(self):
         self.ids.pesquisa_matricula.text = ''
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
 
 
     def carregar_ocorrencias(self):
@@ -251,7 +326,7 @@ class RelatorioOcorrenciaScreen(Screen):
             if matricula:
                 self.manager.get_screen('relatorio_ocorrencia2').carregar_ocorrencias(matricula)
                 self.manager.current = 'relatorio_ocorrencia2'
-    
+
 
     def voltar(self):
         self.ids.pesquisa_posto.text = ''
@@ -259,13 +334,34 @@ class RelatorioOcorrenciaScreen(Screen):
         self.manager.current = "supervisor_screen"
 
 
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.voltar()
+            return True
+
+
 class RelatorioOcorrenciaScreen2(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'relatorio_ocorrencia'
+            return True
+
+
     def mostrar_item(self, texto):
         partes = texto.split()
         if partes:
             self.id_selecionado = partes[0]
             self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"{self.id_selecionado}"
             self.manager.current = 'relatorio_ocorrencia3'
+
 
     def carregar_ocorrencias(self, matricula):
         try:
@@ -295,7 +391,7 @@ class RelatorioOcorrenciaScreen2(Screen):
             return data_obj.strftime("%d/%m/%Y %H:%M:%S")
         except ValueError:
             return data_str
-    
+
 
     def buscar_ocorrido(self, texto):
         partes = texto.split()
@@ -317,9 +413,17 @@ class RelatorioOcorrenciaScreen2(Screen):
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'{e}')
 
- 
 
 class RelatorioOcorrenciaScreen3(Screen):
+    def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'relatorio_ocorrencia2'
+            return True
     pass
 
 
@@ -334,7 +438,7 @@ class MeuAplicativo(App):
 
 
     def on_stop(self):
-      logout_usuario()
+        logout_usuario()
 
 
     def fechar_aplicativo(self):
