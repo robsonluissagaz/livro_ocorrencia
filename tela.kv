@@ -49,7 +49,7 @@ MeuGerenciador:
             size_hint: 0.3, 0.08
             font_size: '18sp'
             background_color: 1, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.25}
+            pos_hint: {'center_x': 0.5, 'y': 0.15}
             on_release: app.fechar_aplicativo()
 
 <SupervisorScreen>:
@@ -172,25 +172,12 @@ MeuGerenciador:
     name: 'relatorio_ocorrencia'
     FloatLayout:
         TextInput:
-            id: pesquisa_posto
-            hint_text: 'PESQUISA POR POSTO'
+            id: pesquisa_matricula
+            hint_text: 'INSIRA A MATRÍCULA'
             multiline: False
             size_hint: 0.7, 0.06
-            font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.7}
-        Button:
-            text: 'PESQUISAR'
-            size_hint: 0.3, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
-            on_release: root.manager.current = 'relatorio_ocorrencia2'
-        TextInput:
-            id: pesquisa_matricula
-            hint_text: 'PESQUISA POR MATRÍCULA'
-            multiline: False
-            size_hint: 0.7, 0.06
-            font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.5}
             input_filter: 'int'
             input_type: 'number'
             on_text: if not self.text.isdigit(): self.text = ''.join(filter(str.isdigit, self.text))
@@ -198,14 +185,14 @@ MeuGerenciador:
             text: 'PESQUISAR'
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.carregar_ocorrencias()
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.2}
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
             on_release: root.voltar()
 
 <RelatorioOcorrenciaScreen2>:
@@ -282,8 +269,7 @@ MeuGerenciador:
                     text_size: self.width - dp(20), None
                     halign: 'left'
                     valign: 'top'
-                    padding_x: dp(10)
-                    padding_y: dp(10)
+                    padding: dp(10), dp(10)
         Button:
             text: 'VOLTAR'
             background_color: 1, 0, 0, 1
@@ -390,7 +376,7 @@ MeuGerenciador:
             size_hint: 0.7, 0.08
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.35}
-            on_release: root.registrar_ocorrencia()
+            on_release: root.confirmar_registro_ocorrencia()
         Button:
             text: "VOLTAR"
             size_hint: 0.3, 0.08

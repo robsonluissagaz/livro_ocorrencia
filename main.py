@@ -25,7 +25,7 @@ def show_popup(titulo, mensagem):
         content.add_widget(Label(text=mensagem))
         btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
         btn_layout.add_widget(Label())
-        btn_layout.add_widget(Button(text="Fechar", size_hint=(0.9, 1), on_release=lambda x: popup.dismiss()))
+        btn_layout.add_widget(Button(text="Fechar", size_hint=(3, 1), on_release=lambda x: popup.dismiss()))
         btn_layout.add_widget(Label())
         content.add_widget(btn_layout)
         popup = Popup(
@@ -77,18 +77,20 @@ def logout_usuario():
 
 class LoginScreen(Screen):
     def on_pre_enter(self):
-        Window.bind(on_keyboard=self.voltar_tela)
+        Window.bind(on_keyboard=self.fechar_app)
 
 
     def on_pre_leave(self):
-        Window.unbind(on_keyboard=self.voltar_tela)
-    
+        Window.unbind(on_keyboard=self.fechar_app)
 
-    def voltar_tela(self, window, key, *args):
+
+    def fechar_app(self, window, key, *args):
         if key == 27:
-            app = App.get_running_app()
-            app.fechar_aplicativo()
-            return True
+            if self.name == 'login_screen':
+                App.get_running_app().stop()
+                return True
+            return False
+        return False
 
 
     def verificar_login(self):
@@ -115,7 +117,6 @@ class LoginScreen(Screen):
             show_popup("Erro de Login", "Usuário já conectado em outro dispositivo.")
         elif cargo == "erro_conexao_api":
             show_popup("Erro de Login", "Servidor indisponível no momento.")
-
 
 
 class SupervisorScreen(Screen):
@@ -146,6 +147,20 @@ class SupervisorScreen(Screen):
 
 
 class CadastroVigilanteScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.manager.current = 'supervisor_screen'
+            return True
+        
+
     def cadastrar_vigilante(self):
         nome_completo = self.ids.nome_completo.text.strip().upper()
         login_vigilante = self.ids.login_vigilante.text.strip()
@@ -179,20 +194,23 @@ class CadastroVigilanteScreen(Screen):
                 show_popup('Erro', 'Erro desconhecido ao cadastrar o vigilante')
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'{e}')
-        
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+
+class RemoverVigilanteScreen(Screen):
+    def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
 
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
             self.manager.current = 'supervisor_screen'
             return True
+        
 
-
-class RemoverVigilanteScreen(Screen):
     def remover_vigilante(self):
         nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
         if not nome_vigilante:
@@ -233,20 +251,37 @@ class RemoverVigilanteScreen(Screen):
             show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
         finally:
             popup.dismiss()
-    pass
 
 
-    def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            Window.bind(on_keyboard=self.voltar_tela)
-        
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
             self.manager.current = 'supervisor_screen'
             return True
 
+
 class VigilanteScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            self.desconectar()
+            return True
+        
+
     def atualizar_label(self):
         self.ids.letreiro_vigilante.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
 
@@ -259,19 +294,21 @@ class VigilanteScreen(Screen):
                 self.manager.current = "login_screen"
 
 
-    def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            Window.bind(on_keyboard=self.voltar_tela)
-        
+class OcorrenciaScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
-            self.desconectar()
+            self.manager.current = 'vigilante_screen'
             return True
-    pass
+        
 
-
-class OcorrenciaScreen(Screen):
     def registrar_ocorrencia(self):
         posto = self.ids.posto.text.strip().upper()
         vigilante = app_state.nome_usuario_letreiro
@@ -296,17 +333,39 @@ class OcorrenciaScreen(Screen):
                 show_popup('Erro', 'Erro desconhecido')
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'Erro de conexão {e}')
-    
-    def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            Window.bind(on_keyboard=self.voltar_tela)
         
 
-    def voltar_tela(self, window, key, *args):
-        if key == 27:
-            self.manager.current = 'vigilante_screen'
-            return True
-    pass
+    def confirmar_registro_ocorrencia(self):
+        box = BoxLayout(orientation="vertical", padding=5, spacing=5)
+        mensagem = Label(
+            text="Aviso:\nAo prosseguir, você confirma toda a verdade contida no campo de ocorrência\n"
+             "e que você é responsável pelo conteúdo apontado?.",
+             halign="center",
+             valign="center",
+             size_hint=(1, None),
+             text_size=(350, None),
+             height=120,
+             pos_hint={"center_y": 3}
+             )
+        mensagem2 = Label(text='')
+        botoes = BoxLayout(size_hint_y=None, height=50, spacing=10)
+        btn_confirmar = Button(text="Confirmar", on_release=self.registrar_ocorrencia)
+        btn_cancelar = Button(text="Cancelar")
+        botoes.add_widget(btn_confirmar)
+        botoes.add_widget(btn_cancelar)
+        box.add_widget(mensagem)
+        box.add_widget(mensagem2)
+        box.add_widget(botoes)
+        popup = Popup(
+            title="Confirmação",
+            content=box,
+            size_hint=(None, None),
+            size=(400, 450),
+            auto_dismiss=False
+        )
+        btn_cancelar.bind(on_release=popup.dismiss)
+        btn_confirmar.bind(on_release=lambda *args: (self.registrar_ocorrencia(), popup.dismiss()))
+        popup.open()
 
 
 class RelatorioOcorrenciaScreen(Screen):
@@ -326,10 +385,11 @@ class RelatorioOcorrenciaScreen(Screen):
             if matricula:
                 self.manager.get_screen('relatorio_ocorrencia2').carregar_ocorrencias(matricula)
                 self.manager.current = 'relatorio_ocorrencia2'
+        else:
+            show_popup('Erro', 'Insira a matrícula')
 
 
     def voltar(self):
-        self.ids.pesquisa_posto.text = ''
         self.ids.pesquisa_matricula.text = ''
         self.manager.current = "supervisor_screen"
 
@@ -366,7 +426,6 @@ class RelatorioOcorrenciaScreen2(Screen):
     def carregar_ocorrencias(self, matricula):
         try:
             response = requests.get(f'{API_URL}/ocorrencias', params={"matricula": matricula})
-            print("Resposta da API:", response.status_code, response.json())
             if response.status_code == 200:
                 ocorrencias = response.json()
                 rv = self.ids.rv_ocorrencias
@@ -397,7 +456,6 @@ class RelatorioOcorrenciaScreen2(Screen):
         partes = texto.split()
         if partes:
             self.id_selecionado = int(partes[0])
-            print(f"ID Selecionado: {self.id_selecionado}")
             self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Selecionado: {self.id_selecionado}"
         if not hasattr(self, "id_selecionado") or not self.id_selecionado:
             show_popup("Erro", "Nenhum ID selecionado!")
@@ -406,7 +464,7 @@ class RelatorioOcorrenciaScreen2(Screen):
             if response.status_code == 200:
                 dados = response.json()
                 ocorrido = dados.get("ocorrido", "Sem detalhes")
-                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}: {ocorrido}"
+                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}\n\n{ocorrido}"
                 self.manager.current = 'relatorio_ocorrencia3'
             else:
                 show_popup('Erro', 'Erro ao buscar o ocorrido')
@@ -415,16 +473,18 @@ class RelatorioOcorrenciaScreen2(Screen):
 
 
 class RelatorioOcorrenciaScreen3(Screen):
-    def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            Window.bind(on_keyboard=self.voltar_tela)
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
 
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
             self.manager.current = 'relatorio_ocorrencia2'
             return True
-    pass
 
 
 class MeuGerenciador(ScreenManager):
