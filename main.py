@@ -31,7 +31,7 @@ def show_popup(titulo, mensagem):
         popup = Popup(
             title=titulo,
             content=content,
-            size_hint=(0.6, 0.4),
+            size_hint=(0.8, 0.4),
             auto_dismiss=False,)
         popup.open()
 
@@ -189,7 +189,7 @@ class CadastroVigilanteScreen(Screen):
                 self.ids.senha1_vigilante.text = ""
                 self.ids.senha2_vigilante.text = ""
             elif response.status_code == 400:
-                show_popup('Erro', 'Erro 400 ao cadastrar o vigilante')
+                show_popup('Erro', 'Nome ou usuário já cadastrado')
             else:
                 show_popup('Erro', 'Erro desconhecido ao cadastrar o vigilante')
         except requests.exceptions.RequestException as e:
@@ -197,6 +197,8 @@ class CadastroVigilanteScreen(Screen):
 
 
 class RemoverVigilanteScreen(Screen):
+    popup_aberto = None
+
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
 
@@ -207,6 +209,10 @@ class RemoverVigilanteScreen(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if self.popup_aberto:
+                self.popup_aberto.dismiss()
+                self.popup_aberto = None
+                return True
             self.manager.current = 'supervisor_screen'
             return True
         
@@ -216,8 +222,11 @@ class RemoverVigilanteScreen(Screen):
         if not nome_vigilante:
             show_popup('Erro', 'Preencha o nome do vigilante')
             return
+        
+        
         def confirmar_remocao(instance):
-            popup.dismiss()
+            self.popup_aberto.dismiss()
+            self.popup_aberto = None
             try:
                 response = requests.delete(f"{API_URL}/vigilantes", json={"nome": nome_vigilante})
                 if response.status_code == 200:
@@ -230,41 +239,21 @@ class RemoverVigilanteScreen(Screen):
             except requests.exceptions.RequestException as e:
                 show_popup('Erro', f'Erro de conexão com a API{e}')
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=f"Tem certeza que deseja remover '{nome_vigilante} '?"))
+        content.add_widget(Label(text=f"Tem certeza que deseja remover\n{nome_vigilante}?"))
         buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
         btn_confirmar = Button(text="Sim", on_release=confirmar_remocao)
-        btn_cancelar = Button(text="Cancelar", on_release=lambda instance: popup.dismiss())
+        btn_cancelar = Button(text="Cancelar", on_release=lambda instance: self.fechar_popup())
         buttons.add_widget(btn_confirmar)
         buttons.add_widget(btn_cancelar)
         content.add_widget(buttons)
-        popup = Popup(title="Confirmação", content=content, size_hint=(0.6, 0.4), auto_dismiss=False)
-        popup.open()
+        self.popup_aberto = Popup(title="Confirmação", content=content, size_hint=(0.8, 0.4), auto_dismiss=False)
+        self.popup_aberto.open()
 
 
-    def confirmar_remocao(self, popup, nome_vigilante):
-        try:
-            query = "DELETE FROM vigilantes WHERE nome = %s"
-            self.cursor.execute(query, (nome_vigilante,))
-            self.conn.commit()
-            show_popup("Sucesso", f"Usuário '{nome_vigilante}' removido com sucesso.")
-        except mysql.connector.Error as e:
-            show_popup("Erro", f"Erro ao remover o vigilante: {str(e)}")
-        finally:
-            popup.dismiss()
-
-
-    def on_pre_enter(self):
-        Window.bind(on_keyboard=self.voltar_tela)
-
-
-    def on_pre_leave(self):
-        Window.unbind(on_keyboard=self.voltar_tela)
-
-
-    def voltar_tela(self, window, key, *args):
-        if key == 27:
-            self.manager.current = 'supervisor_screen'
-            return True
+    def fechar_popup(self):
+        if self.popup_aberto:
+            self.popup_aberto.dismiss()
+            self.popup_aberto = None
 
 
 class VigilanteScreen(Screen):
@@ -339,7 +328,7 @@ class OcorrenciaScreen(Screen):
         box = BoxLayout(orientation="vertical", padding=5, spacing=5)
         mensagem = Label(
             text="Aviso:\nAo prosseguir, você confirma toda a verdade contida no campo de ocorrência\n"
-             "e que você é responsável pelo conteúdo apontado?.",
+             "e que você é responsável pelo conteúdo apontado.",
              halign="center",
              valign="center",
              size_hint=(1, None),
@@ -348,13 +337,15 @@ class OcorrenciaScreen(Screen):
              pos_hint={"center_y": 3}
              )
         mensagem2 = Label(text='')
+        mensagem3 = Label(text='')
         botoes = BoxLayout(size_hint_y=None, height=50, spacing=10)
         btn_confirmar = Button(text="Confirmar", on_release=self.registrar_ocorrencia)
         btn_cancelar = Button(text="Cancelar")
         botoes.add_widget(btn_confirmar)
         botoes.add_widget(btn_cancelar)
-        box.add_widget(mensagem)
         box.add_widget(mensagem2)
+        box.add_widget(mensagem)
+        box.add_widget(mensagem3)
         box.add_widget(botoes)
         popup = Popup(
             title="Confirmação",
