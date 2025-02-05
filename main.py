@@ -9,7 +9,7 @@ from kivy.core.window import Window
 import requests
 import mysql.connector
 from datetime import datetime
-API_URL = "http://186.225.224.185:5000"
+API_URL = ""
 
 
 class AppState:
