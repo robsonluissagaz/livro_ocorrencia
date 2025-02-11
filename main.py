@@ -17,23 +17,25 @@ class AppState:
     nome_usuario_letreiro = ''
     matricula_get = ''
     id_ocorrido_get = ''
+    popup_atual = None
 
 app_state = AppState()
 
 def show_popup(titulo, mensagem):
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=mensagem))
-        btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
-        btn_layout.add_widget(Label())
-        btn_layout.add_widget(Button(text="Fechar", size_hint=(3, 1), on_release=lambda x: popup.dismiss()))
-        btn_layout.add_widget(Label())
-        content.add_widget(btn_layout)
-        popup = Popup(
-            title=titulo,
-            content=content,
-            size_hint=(0.8, 0.4),
-            auto_dismiss=False,)
-        popup.open()
+    content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+    content.add_widget(Label(text=mensagem))
+    btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
+    btn_layout.add_widget(Label())
+    btn_layout.add_widget(Button(text="Fechar", size_hint=(3, 1), on_release=lambda x: AppState.popup_atual.dismiss()))
+    btn_layout.add_widget(Label())
+    content.add_widget(btn_layout)
+    AppState.popup_atual = Popup(
+        title=titulo,
+        content=content,
+        size_hint=(0.8, 0.4),
+        auto_dismiss=False
+    )
+    AppState.popup_atual.open()
 
 
 def login_usuario(nome_usuario, senha):
@@ -153,10 +155,19 @@ class CadastroVigilanteScreen(Screen):
 
     def on_pre_leave(self):
         Window.unbind(on_keyboard=self.voltar_tela)
+        self.ids.nome_completo.text = ''
+        self.ids.login_vigilante.text = ''
+        self.ids.matricula.text = ''
+        self.ids.senha1_vigilante.text = ''
+        self.ids.senha2_vigilante.text = ''
 
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
             self.manager.current = 'supervisor_screen'
             return True
         
@@ -209,9 +220,9 @@ class RemoverVigilanteScreen(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
-            if self.popup_aberto:
-                self.popup_aberto.dismiss()
-                self.popup_aberto = None
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
                 return True
             self.manager.current = 'supervisor_screen'
             return True
@@ -294,6 +305,10 @@ class OcorrenciaScreen(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
             self.manager.current = 'vigilante_screen'
             return True
         
@@ -371,13 +386,15 @@ class RelatorioOcorrenciaScreen(Screen):
 
     def carregar_ocorrencias(self):
         pesquisa_matricula = self.ids.get("pesquisa_matricula")
-        if pesquisa_matricula:
-            matricula = pesquisa_matricula.text.strip()
-            if matricula:
-                self.manager.get_screen('relatorio_ocorrencia2').carregar_ocorrencias(matricula)
-                self.manager.current = 'relatorio_ocorrencia2'
-        else:
+        if pesquisa_matricula is None:  
+            show_popup('Erro', 'Erro interno: Campo de matrícula não encontrado!')
+            return
+        matricula = pesquisa_matricula.text.strip()
+        if not matricula:
             show_popup('Erro', 'Insira a matrícula')
+            return
+        self.manager.get_screen('relatorio_ocorrencia2').carregar_ocorrencias(matricula)
+        self.manager.current = 'relatorio_ocorrencia2'
 
 
     def voltar(self):
@@ -387,6 +404,10 @@ class RelatorioOcorrenciaScreen(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
             self.voltar()
             return True
 
@@ -402,6 +423,10 @@ class RelatorioOcorrenciaScreen2(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
             self.manager.current = 'relatorio_ocorrencia'
             return True
 
@@ -474,6 +499,10 @@ class RelatorioOcorrenciaScreen3(Screen):
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
             self.manager.current = 'relatorio_ocorrencia2'
             return True
 
