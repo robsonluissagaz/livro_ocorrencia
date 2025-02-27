@@ -9,6 +9,7 @@ from kivy.core.window import Window
 import requests
 import mysql.connector
 from datetime import datetime
+from kivy.uix.scrollview import ScrollView
 API_URL = "http://186.225.224.185:5000"
 
 
@@ -23,16 +24,24 @@ app_state = AppState()
 
 def show_popup(titulo, mensagem):
     content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-    content.add_widget(Label(text=mensagem))
+    lbl_mensagem = Label(
+        text=mensagem,
+        size_hint_y=None,
+        height=50,
+        text_size=(400, None),
+        halign='center',
+        valign='center'
+    )
+    content.add_widget(lbl_mensagem)
     btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
     btn_layout.add_widget(Label())
-    btn_layout.add_widget(Button(text="Fechar", size_hint=(3, 1), on_release=lambda x: AppState.popup_atual.dismiss()))
+    btn_layout.add_widget(Button(text="Fechar", size_hint=(1, 0.5), on_release=lambda x: AppState.popup_atual.dismiss()))
     btn_layout.add_widget(Label())
     content.add_widget(btn_layout)
     AppState.popup_atual = Popup(
         title=titulo,
         content=content,
-        size_hint=(0.8, 0.4),
+        size_hint=(0.8, 0.35),
         auto_dismiss=False
     )
     AppState.popup_atual.open()
@@ -208,8 +217,6 @@ class CadastroVigilanteScreen(Screen):
 
 
 class RemoverVigilanteScreen(Screen):
-    popup_aberto = None
-
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
 
@@ -226,45 +233,66 @@ class RemoverVigilanteScreen(Screen):
                 return True
             self.manager.current = 'supervisor_screen'
             return True
-        
+
 
     def remover_vigilante(self):
-        nome_vigilante = self.ids.nome_vigilante_remover.text.strip().upper()
-        if not nome_vigilante:
-            show_popup('Erro', 'Preencha o nome do vigilante')
+        self.matricula_vigilante = self.ids.matricula_vigilante_remover.text.strip()
+        if not self.matricula_vigilante:
+            show_popup('Erro', 'Preencha a matrícula do vigilante')
             return
-        
-        
-        def confirmar_remocao(instance):
-            self.popup_aberto.dismiss()
-            self.popup_aberto = None
-            try:
-                response = requests.delete(f"{API_URL}/vigilantes", json={"nome": nome_vigilante})
-                if response.status_code == 200:
-                    show_popup('Sucesso', 'Vigilante removido com sucesso')
-                    self.ids.nome_vigilante_remover.text = ""
-                elif response.status_code == 400:
-                    show_popup('Erro', 'Erro ao remover vigilante')
-                else:
-                    show_popup('Erro', 'Erro desconhecido')
-            except requests.exceptions.RequestException as e:
-                show_popup('Erro', f'Erro de conexão com a API{e}')
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=f"Tem certeza que deseja remover\n{nome_vigilante}?"))
-        buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
-        btn_confirmar = Button(text="Sim", on_release=confirmar_remocao)
-        btn_cancelar = Button(text="Cancelar", on_release=lambda instance: self.fechar_popup())
-        buttons.add_widget(btn_confirmar)
-        buttons.add_widget(btn_cancelar)
-        content.add_widget(buttons)
-        self.popup_aberto = Popup(title="Confirmação", content=content, size_hint=(0.8, 0.4), auto_dismiss=False)
-        self.popup_aberto.open()
+        try:
+            response = requests.post(f"{API_URL}/vigilantes/buscar", json={"matricula": self.matricula_vigilante})
+            if response.status_code == 200:
+                nome_vigilante = response.json().get("nome_vigilante", "Vigilante")
+                content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+                content.add_widget(Label(text=f"Tem certeza que deseja remover:\n{nome_vigilante}?"))
+                buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
+                btn_confirmar = Button(text="Sim", on_release=self.confirmar_remocao)
+                btn_cancelar = Button(text="Cancelar", on_release=self.fechar_popup)
+                buttons.add_widget(btn_confirmar)
+                buttons.add_widget(btn_cancelar)
+                content.add_widget(buttons)
+                AppState.popup_atual = Popup(title="Confirmação", content=content, size_hint=(0.8, 0.4), auto_dismiss=False)
+                AppState.popup_atual.open()
+                Window.bind(on_keyboard=self.fechar_popup_com_tecla)
+            elif response.status_code == 404:
+                show_popup('Erro', 'Vigilante não encontrado')
+            elif response.status_code == 403:
+                show_popup('Erro', 'Operação não autorizada!')
+            else:
+                show_popup('Erro', 'Erro ao buscar vigilante')
+        except requests.exceptions.RequestException as e:
+            show_popup('Erro', f'Erro de conexão com a API: {e}')
 
 
-    def fechar_popup(self):
-        if self.popup_aberto:
-            self.popup_aberto.dismiss()
-            self.popup_aberto = None
+    def confirmar_remocao(self, instance):
+        self.fechar_popup()
+        try:
+            response = requests.delete(f"{API_URL}/vigilantes", json={"matricula": self.matricula_vigilante})
+            if response.status_code == 200:
+                show_popup('Sucesso', 'Vigilante removido com sucesso')
+                self.ids.matricula_vigilante_remover.text = ""
+            elif response.status_code == 404:
+                show_popup('Erro', 'Vigilante não encontrado')
+            else:
+                show_popup('Erro', 'Erro ao remover vigilante')
+        except requests.exceptions.RequestException as e:
+            show_popup('Erro', f'Erro de conexão com a API {e}')
+
+
+    def fechar_popup_com_tecla(self, window, key, *args):
+        if key == 27:
+            self.fechar_popup()
+            Window.bind(on_keyboard=self.voltar_tela)
+            return True
+
+
+    def fechar_popup(self, *args):
+        if AppState.popup_atual:
+            AppState.popup_atual.dismiss()
+            AppState.popup_atual = None
+            Window.unbind(on_keyboard=self.voltar_tela)
+
 
 
 class VigilanteScreen(Screen):
@@ -446,7 +474,10 @@ class RelatorioOcorrenciaScreen2(Screen):
                 ocorrencias = response.json()
                 rv = self.ids.rv_ocorrencias
                 if not ocorrencias:
-                    rv.data = [{"text": "Nenhuma ocorrência encontrada."}]
+                    show_popup('Erro', 'Nenhuma ocorrencia cadastrada')
+                    ocorrencias = ''
+                    if rv.data:
+                        rv.data = ''
                 else:
                     ocorrencias.sort(key=lambda oc: datetime.strptime(oc['data_ocorrencia'], "%a, %d %b %Y %H:%M:%S GMT"), reverse=True)
                     rv.data = [

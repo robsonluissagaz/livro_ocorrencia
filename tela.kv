@@ -278,7 +278,6 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'relatorio_ocorrencia2'
 
-
 <RemoverVigilanteScreen>:
     canvas.before:
         Color:
@@ -294,12 +293,15 @@ MeuGerenciador:
             size_hint: None, None
             pos_hint: {'center_x': 0.5, 'y': 0.6}
         TextInput:
-            id: nome_vigilante_remover
-            hint_text: 'NOME COMPLETO'
+            id: matricula_vigilante_remover
+            hint_text: 'MATRÍCULA'
             multiline: False
             size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.5}
+            input_filter: 'int'
+            input_type: 'number'
+            on_text: if not self.text.isdigit(): self.text = ''.join(filter(str.isdigit, self.text))
         Button:
             text: 'REMOVER CADASTRO'
             size_hint: (0.7, 0.08)
