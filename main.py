@@ -74,7 +74,7 @@ def logout_usuario():
     if not app_state.usuario_get:
         return "nenhum_usuario_conectado"
     try:
-        response = requests.post(f"{API_URL}/logout", json={"username": app_state.usuario_get})
+        response = requests.post(f"{API_URL}/logout", json={"username": app_state.matricula_get})
         if response.status_code == 200:
             app_state.usuario_get = ""
             app_state.nome_usuario_letreiro = ""
@@ -274,8 +274,8 @@ class RemoverVigilanteScreen(Screen):
                 self.ids.matricula_vigilante_remover.text = ""
             elif response.status_code == 404:
                 show_popup('Erro', 'Vigilante não encontrado')
-            else:
-                show_popup('Erro', 'Erro ao remover vigilante')
+            elif response.status_code == 403:
+                show_popup('Erro', 'Operação não autorizada')
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'Erro de conexão com a API {e}')
 
