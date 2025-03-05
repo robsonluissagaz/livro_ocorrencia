@@ -7,9 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.core.window import Window
 import requests
-import mysql.connector
 from datetime import datetime
-from kivy.uix.scrollview import ScrollView
 API_URL = "http://186.225.224.185:5000"
 
 
@@ -59,7 +57,11 @@ def login_usuario(nome_usuario, senha):
             app_state.nome_usuario_letreiro = dados.get("nome", "")
             app_state.usuario_get = dados.get("login", "")
             app_state.matricula_get = dados.get("matricula", "")
-            return dados.get("cargo", "usuario_nao_encontrado")
+            cargo = dados.get("cargo")
+            if cargo:
+                return cargo
+            else:
+                return "usuario_nao_encontrado"
         elif response.status_code == 401:
             return "senha_incorreta"
         elif response.status_code == 403:
@@ -67,14 +69,14 @@ def login_usuario(nome_usuario, senha):
         else:
             return "usuario_nao_encontrado"
     except requests.exceptions.RequestException as e:
-        return f"erro_conexao_api {e}"
+        return "erro_conexao_api"
 
 
 def logout_usuario():
     if not app_state.usuario_get:
         return "nenhum_usuario_conectado"
     try:
-        response = requests.post(f"{API_URL}/logout", json={"username": app_state.matricula_get})
+        response = requests.post(f"{API_URL}/logout", json={"matricula": app_state.matricula_get})
         if response.status_code == 200:
             app_state.usuario_get = ""
             app_state.nome_usuario_letreiro = ""
@@ -84,6 +86,7 @@ def logout_usuario():
             return "erro_logout"
     except requests.exceptions.RequestException as e:
         return "erro_conexao_api"
+
 
 
 class LoginScreen(Screen):
@@ -133,28 +136,32 @@ class LoginScreen(Screen):
 class SupervisorScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
+        self.atualizar_label()
 
 
     def on_pre_leave(self):
         Window.unbind(on_keyboard=self.voltar_tela)
-    
+
 
     def atualizar_label(self):
         self.ids.letreiro.text = f'BEM VINDO {app_state.nome_usuario_letreiro}'
 
 
     def desconectar(self):
-        if app_state.usuario_get:
-            resultado = logout_usuario()
-            if resultado == "logout_sucesso":
-                app_state.usuario_get = ""
-                self.manager.current = "login_screen"
+        resultado = logout_usuario()
+        if resultado == "logout_sucesso":
+            self.manager.current = "login_screen"
+        elif resultado == "erro_logout":
+            show_popup('Erro', 'Erro de logout')
+        elif resultado == "erro_conexao_api":
+            show_popup('Erro', 'Erro de conexão com a API')
 
 
     def voltar_tela(self, window, key, *args):
         if key == 27:
             self.desconectar()
             return True
+
 
 
 class CadastroVigilanteScreen(Screen):
@@ -179,7 +186,7 @@ class CadastroVigilanteScreen(Screen):
                 return True
             self.manager.current = 'supervisor_screen'
             return True
-        
+
 
     def cadastrar_vigilante(self):
         nome_completo = self.ids.nome_completo.text.strip().upper()
@@ -292,7 +299,6 @@ class RemoverVigilanteScreen(Screen):
             AppState.popup_atual.dismiss()
             AppState.popup_atual = None
             Window.unbind(on_keyboard=self.voltar_tela)
-
 
 
 class VigilanteScreen(Screen):
