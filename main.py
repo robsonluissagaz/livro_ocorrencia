@@ -33,7 +33,7 @@ def show_popup(titulo, mensagem):
     content.add_widget(lbl_mensagem)
     btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
     btn_layout.add_widget(Label())
-    btn_layout.add_widget(Button(text="Fechar", size_hint=(1, 0.5), on_release=lambda x: AppState.popup_atual.dismiss()))
+    btn_layout.add_widget(Button(text="Fechar", size_hint=(1, 0.3), on_release=lambda x: AppState.popup_atual.dismiss()))
     btn_layout.add_widget(Label())
     content.add_widget(btn_layout)
     AppState.popup_atual = Popup(
@@ -63,6 +63,8 @@ def login_usuario(nome_usuario, senha):
             else:
                 return "usuario_nao_encontrado"
         elif response.status_code == 401:
+            return "usuario_nao_encontrado"
+        elif response.status_code == 402:
             return "senha_incorreta"
         elif response.status_code == 403:
             return "usuario_ja_conectado"
@@ -88,7 +90,6 @@ def logout_usuario():
         return "erro_conexao_api"
 
 
-
 class LoginScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.fechar_app)
@@ -101,8 +102,12 @@ class LoginScreen(Screen):
     def fechar_app(self, window, key, *args):
         if key == 27:
             if self.name == 'login_screen':
-                App.get_running_app().stop()
-                return True
+                if AppState.popup_atual and AppState.popup_atual.parent:
+                    AppState.popup_atual.dismiss()
+                    AppState.popup_atual = None
+                else:
+                    App.get_running_app().stop()
+                    return True
             return False
         return False
 
@@ -161,7 +166,6 @@ class SupervisorScreen(Screen):
         if key == 27:
             self.desconectar()
             return True
-
 
 
 class CadastroVigilanteScreen(Screen):
@@ -330,6 +334,8 @@ class VigilanteScreen(Screen):
 
 class OcorrenciaScreen(Screen):
     def on_pre_enter(self):
+        self.ids.posto.text = ''
+        self.ids.ocorrido.text = ''
         Window.bind(on_keyboard=self.voltar_tela)
 
 
@@ -374,38 +380,143 @@ class OcorrenciaScreen(Screen):
         
 
     def confirmar_registro_ocorrencia(self):
+        posto = self.ids.posto.text.strip().upper()
+        vigilante = app_state.nome_usuario_letreiro
+        matricula = app_state.matricula_get
+        ocorrido = self.ids.ocorrido.text.strip().upper()
+        if not all([ posto, vigilante,  matricula, ocorrido]):
+            show_popup('Erro', 'Por favor preencha todos os campos')
+            return
         box = BoxLayout(orientation="vertical", padding=5, spacing=5)
         mensagem = Label(
-            text="Aviso:\nAo prosseguir, você confirma toda a verdade contida no campo de ocorrência\n"
-             "e que você é responsável pelo conteúdo apontado.",
-             halign="center",
-             valign="center",
-             size_hint=(1, None),
-             text_size=(350, None),
-             height=120,
-             pos_hint={"center_y": 3}
-             )
-        mensagem2 = Label(text='')
-        mensagem3 = Label(text='')
+            text="Aviso:\nAo prosseguir, você confirma toda a verdade contida no campo de ocorrência,\n"
+                "e que você é responsável pelo conteúdo apontado.",
+            halign="center",
+            valign="middle",
+            size_hint=(1, None),
+            text_size=(Window.width * 0.8, None),
+            height=300)
         botoes = BoxLayout(size_hint_y=None, height=50, spacing=10)
-        btn_confirmar = Button(text="Confirmar", on_release=self.registrar_ocorrencia)
-        btn_cancelar = Button(text="Cancelar")
+        btn_confirmar = Button(text="Confirmar", size_hint=(0.5, 1))
+        btn_cancelar = Button(text="Cancelar", size_hint=(0.5, 1))
         botoes.add_widget(btn_confirmar)
         botoes.add_widget(btn_cancelar)
-        box.add_widget(mensagem2)
+        box.add_widget(Label(size_hint_y=None, height=10))
         box.add_widget(mensagem)
-        box.add_widget(mensagem3)
+        box.add_widget(Label(size_hint_y=None, height=10))
         box.add_widget(botoes)
-        popup = Popup(
+        AppState.popup_atual = Popup(
             title="Confirmação",
             content=box,
-            size_hint=(None, None),
-            size=(400, 450),
-            auto_dismiss=False
-        )
-        btn_cancelar.bind(on_release=popup.dismiss)
-        btn_confirmar.bind(on_release=lambda *args: (self.registrar_ocorrencia(), popup.dismiss()))
-        popup.open()
+            size_hint=(0.9, 0.3),
+            auto_dismiss=False)
+        btn_cancelar.bind(on_release=AppState.popup_atual.dismiss)
+        btn_confirmar.bind(on_release=self.on_confirmar)
+        AppState.popup_atual.open()
+
+
+    def on_confirmar(self, *args):
+        AppState.popup_atual.dismiss()
+        self.registrar_ocorrencia()
+        
+
+
+class MinhasOcorrenciasScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+        self.carregar_ocorrencias()
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
+            self.manager.current = 'vigilante_screen'
+            return True
+
+
+    def carregar_ocorrencias(self):
+        matricula = app_state.matricula_get
+        print(f'Esta é a matrícula: {matricula}')
+        if not matricula:
+            show_popup("Erro", "Matrícula não fornecida!")
+            return
+        try:
+            response = requests.get(f"{API_URL}/ocorrencias", params={"matricula": matricula})
+            if response.status_code == 200:
+                ocorrencias = response.json()
+                if ocorrencias:
+                    ocorrencias.sort(key=lambda oc: datetime.strptime(oc['data_ocorrencia'], "%a, %d %b %Y %H:%M:%S GMT"), reverse=True)
+                    self.ids.rv_ocorrencias.data = [
+                                                    {"text": f"{oc['id']} - {self.formatar_data(oc['data_ocorrencia'])}",
+                                                    "on_release": lambda x=oc['id']: self.mostrar_detalhes(x)}
+                                                    for oc in ocorrencias
+                                                    ]
+                else:
+                    show_popup("Aviso", "Nenhuma ocorrência encontrada.")
+                    self.ids.rv_ocorrencias.data = []
+            else:
+                erro_msg = response.json().get("erro", "Erro desconhecido.")
+                show_popup("Erro", f"Erro {response.status_code}: {erro_msg}")
+        except requests.exceptions.RequestException as e:
+            show_popup("Erro", f"Erro de conexão: {str(e)}")
+
+
+    def formatar_data(self, data_str):
+        try:
+            data_obj = datetime.strptime(data_str, "%a, %d %b %Y %H:%M:%S GMT")
+            return data_obj.strftime("%d/%m/%Y %H:%M:%S")
+        except ValueError:
+            return data_str
+
+
+    def mostrar_detalhes(self, texto):
+        self.manager.get_screen('minhas_ocorrencias2_screen').mostrar_ocorrencia(texto)
+
+
+class MinhasOcorrencias2Screen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
+            self.manager.current = 'minhas_ocorrencias_screen'
+            return True
+
+
+    def mostrar_ocorrencia(self, id):
+        conteudo_label = self.ids.conteudo_label
+        try:
+            response = requests.get(f'{API_URL}/ocorrencia/{id}')
+            if response.status_code == 200:
+                ocorrencia = response.json()
+                data_original = ocorrencia.get('data_ocorrencia', 'Data não informada')
+                if data_original != 'Data não informada':
+                    data_formatada = datetime.strptime(data_original, '%a, %d %b %Y %H:%M:%S %Z').strftime('%d/%m/%Y %H:%M:%S')
+                else:
+                    data_formatada = data_original
+                texto = f"ID: {ocorrencia['id']}\nPosto: {ocorrencia.get('posto', 'Sem descrição')}\nData: {data_formatada}\n\nOcorrido:\n{ocorrencia.get('ocorrido', 'Sem descrição')}"
+                conteudo_label.text = texto
+                self.manager.current = 'minhas_ocorrencias2_screen'
+            else:
+                conteudo_label.text = "Ocorrência não encontrada"
+        except Exception as e:
+            conteudo_label.text = f"Erro: {str(e)}"
 
 
 class RelatorioOcorrenciaScreen(Screen):
@@ -517,7 +628,8 @@ class RelatorioOcorrenciaScreen2(Screen):
             if response.status_code == 200:
                 dados = response.json()
                 ocorrido = dados.get("ocorrido", "Sem detalhes")
-                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}\n\n{ocorrido}"
+                posto = dados.get('posto', 'Posto não informado')
+                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}\nPosto: {posto}\n{ocorrido}"
                 self.manager.current = 'relatorio_ocorrencia3'
             else:
                 show_popup('Erro', 'Erro ao buscar o ocorrido')
