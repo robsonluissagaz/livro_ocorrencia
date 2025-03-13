@@ -10,6 +10,7 @@ MeuGerenciador:
     RelatorioOcorrenciaScreen3:
     MinhasOcorrenciasScreen:
     MinhasOcorrencias2Screen:
+    PedidoDeUniformeScreen:
 
 <LoginScreen>:
     canvas.before:
@@ -346,10 +347,16 @@ MeuGerenciador:
             pos_hint: {'center_x': 0.5, 'y': 0.5}
             on_release: root.manager.current = 'minhas_ocorrencias_screen'
         Button:
+            text: "SOLICITAR UNIFORME"
+            size_hint: 0.7, 0.08
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            on_release: root.manager.current = 'pedido_uniforme'
+        Button:
             text: "Sair"
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.3}
+            pos_hint: {'center_x': 0.5, 'y': 0.2}
             background_color: 1, 0, 0, 1
             on_release: root.desconectar()
 
@@ -476,3 +483,52 @@ MeuGerenciador:
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.1}
             on_release: root.manager.current = 'minhas_ocorrencias_screen'
+
+<PedidoDeUniformeScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name:'pedido_uniforme'
+    FloatLayout:
+        Label:
+            text: 'SOLICITAR UNIFORME'
+            size_hint: None, None
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.80}
+        Spinner:
+            id: item
+            text: "SELECIONE O ITEM"
+            values: ["CAMISA MANGA CURTA", "CAMISA MANGA LONGA", "CINTO", "CALCA", "SAPATO", "CRACHA", "COLETE", "CASACO"]
+            size_hint: None, None
+            size: 200, 44
+            pos_hint: {'center_x': 0.5, 'y': 0.7}
+        TextInput:
+            id: tamanho_item
+            hint_text: 'TAMANHO'
+            multiline: False
+            size_hint: 0.7, 0.06
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.6}
+        TextInput:
+            id: posto
+            hint_text: 'POSTO DE TRABALHO'
+            multiline: False
+            size_hint: 0.7, 0.06
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
+        Button:
+            text: 'SOLICITAR'
+            size_hint: 0.3, 0.08
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            on_release: root.mostrar_uniforme()
+        Button:
+            text: 'VOLTAR'
+            background_color: 1, 0, 0, 1
+            size_hint: 0.3, 0.08
+            font_size: '18sp'
+            pos_hint: {'center_x': 0.5, 'y': 0.1}
+            on_release: root.manager.current = 'vigilante_screen'

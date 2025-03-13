@@ -229,6 +229,7 @@ class CadastroVigilanteScreen(Screen):
 
 class RemoverVigilanteScreen(Screen):
     def on_pre_enter(self):
+        self.ids.matricula_vigilante_remover.text = ''
         Window.bind(on_keyboard=self.voltar_tela)
 
 
@@ -351,7 +352,7 @@ class OcorrenciaScreen(Screen):
                 return True
             self.manager.current = 'vigilante_screen'
             return True
-        
+
 
     def registrar_ocorrencia(self):
         posto = self.ids.posto.text.strip().upper()
@@ -419,7 +420,6 @@ class OcorrenciaScreen(Screen):
         AppState.popup_atual.dismiss()
         self.registrar_ocorrencia()
         
-
 
 class MinhasOcorrenciasScreen(Screen):
     def on_pre_enter(self):
@@ -518,6 +518,34 @@ class MinhasOcorrencias2Screen(Screen):
         except Exception as e:
             conteudo_label.text = f"Erro: {str(e)}"
 
+
+class PedidoDeUniformeScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+    
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+    
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
+            self.manager.current = 'vigilante_screen'
+            return True
+    
+
+    def mostrar_uniforme(self):
+        escolha = self.ids.item.text.strip().upper()
+        tamanho = self.ids.tamanho_item.text.strip().upper()
+        posto = self.ids.posto.text.strip().upper()
+        show_popup('Sucesso', f'Você solicitou:\nITEM: {escolha}\nTAMANHO: {tamanho}\nPOSTO: {posto}\nAGUARDE A APROVAÇÃO')
+        self.ids.item.text = 'SELECIONE O ITEM'
+        self.ids.tamanho_item.text = ''
+        self.ids.posto.text = ''
 
 class RelatorioOcorrenciaScreen(Screen):
     def on_pre_enter(self):
