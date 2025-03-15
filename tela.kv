@@ -502,8 +502,8 @@ MeuGerenciador:
             id: item
             text: "SELECIONE O ITEM"
             values: ["CAMISA MANGA CURTA", "CAMISA MANGA LONGA", "CINTO", "CALCA", "SAPATO", "CRACHA", "COLETE", "CASACO"]
-            size_hint: None, None
-            size: 200, 44
+            size_hint: 0.5, None
+            height: 100
             pos_hint: {'center_x': 0.5, 'y': 0.7}
         TextInput:
             id: tamanho_item
@@ -512,18 +512,25 @@ MeuGerenciador:
             size_hint: 0.7, 0.06
             font_size: '18sp'
             pos_hint: {'center_x': 0.5, 'y': 0.6}
+        Spinner:
+            id: quantidade_item
+            text: "QUANTIDADE OU PARES"
+            values: ["1", "2"]
+            size_hint: 0.5, None
+            height: 100
+            pos_hint: {'center_x': 0.5, 'y': 0.5}
         TextInput:
             id: posto
             hint_text: 'POSTO DE TRABALHO'
             multiline: False
             size_hint: 0.7, 0.06
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.5}
+            pos_hint: {'center_x': 0.5, 'y': 0.4}
         Button:
             text: 'SOLICITAR'
             size_hint: 0.3, 0.08
             font_size: '18sp'
-            pos_hint: {'center_x': 0.5, 'y': 0.4}
+            pos_hint: {'center_x': 0.5, 'y': 0.3}
             on_release: root.mostrar_uniforme()
         Button:
             text: 'VOLTAR'

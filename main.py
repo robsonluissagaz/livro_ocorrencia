@@ -24,7 +24,6 @@ def show_popup(titulo, mensagem):
     content = BoxLayout(orientation='vertical', spacing=10, padding=10)
     lbl_mensagem = Label(
         text=mensagem,
-        size_hint_y=None,
         height=50,
         text_size=(400, None),
         halign='center',
@@ -33,7 +32,7 @@ def show_popup(titulo, mensagem):
     content.add_widget(lbl_mensagem)
     btn_layout = BoxLayout(orientation='horizontal', spacing=20, size_hint_y=0.3)
     btn_layout.add_widget(Label())
-    btn_layout.add_widget(Button(text="Fechar", size_hint=(1, 0.3), on_release=lambda x: AppState.popup_atual.dismiss()))
+    btn_layout.add_widget(Button(text="Fechar", size_hint=(1, 1), on_release=lambda x: AppState.popup_atual.dismiss()))
     btn_layout.add_widget(Label())
     content.add_widget(btn_layout)
     AppState.popup_atual = Popup(
@@ -291,7 +290,7 @@ class RemoverVigilanteScreen(Screen):
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'Erro de conexão com a API {e}')
 
-
+    
     def fechar_popup_com_tecla(self, window, key, *args):
         if key == 27:
             self.fechar_popup()
@@ -536,16 +535,53 @@ class PedidoDeUniformeScreen(Screen):
                 return True
             self.manager.current = 'vigilante_screen'
             return True
-    
+
 
     def mostrar_uniforme(self):
-        escolha = self.ids.item.text.strip().upper()
-        tamanho = self.ids.tamanho_item.text.strip().upper()
+        nome_vigilante = app_state.nome_usuario_letreiro
+        matricula = app_state.matricula_get
         posto = self.ids.posto.text.strip().upper()
-        show_popup('Sucesso', f'Você solicitou:\nITEM: {escolha}\nTAMANHO: {tamanho}\nPOSTO: {posto}\nAGUARDE A APROVAÇÃO')
+        item_solicitado = self.ids.item.text.strip().upper()
+        tamanho = self.ids.tamanho_item.text.strip().upper()
+        quantidade = self.ids.quantidade_item.text.strip()
+        if not all ([item_solicitado, tamanho, posto, quantidade]):
+            show_popup('Erro', 'Preencha todos os campos')
+        else:
+            content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+            content.add_widget(Label(text=f"Item: {item_solicitado}\nTamanho: {tamanho}\nQuantidade\Pares: {quantidade}\nPosto: {posto}"))
+            buttons = BoxLayout(orientation='horizontal', spacing=10, size_hint=(1, 0.3))
+            btn_confirmar = Button(text="Confirmar", on_release=self.confirmar_solicitacao)
+            btn_cancelar = Button(text="Cancelar", on_release=self.fechar_popup)
+            buttons.add_widget(btn_confirmar)
+            buttons.add_widget(btn_cancelar)
+            content.add_widget(buttons)
+            AppState.popup_atual = Popup(title="Confirmação", content=content, size_hint=(0.8, 0.4), auto_dismiss=False)
+            AppState.popup_atual.open()
+            Window.bind(on_keyboard=self.fechar_popup_com_tecla)
+
+
+    def confirmar_solicitacao(self, instance):
+        self.fechar_popup()
         self.ids.item.text = 'SELECIONE O ITEM'
         self.ids.tamanho_item.text = ''
         self.ids.posto.text = ''
+        self.ids.quantidade_item.text = 'QUANTIDADE OU PARES'
+        show_popup('Sucesso', 'Solicitação enviada')
+
+
+    def fechar_popup_com_tecla(self, window, key, *args):
+        if key == 27:
+            self.fechar_popup()
+            Window.bind(on_keyboard=self.voltar_tela)
+            return True
+
+
+    def fechar_popup(self, *args):
+        if AppState.popup_atual:
+            AppState.popup_atual.dismiss()
+            AppState.popup_atual = None
+            Window.unbind(on_keyboard=self.voltar_tela)
+
 
 class RelatorioOcorrenciaScreen(Screen):
     def on_pre_enter(self):
