@@ -442,7 +442,6 @@ class MinhasOcorrenciasScreen(Screen):
 
     def carregar_ocorrencias(self):
         matricula = app_state.matricula_get
-        print(f'Esta é a matrícula: {matricula}')
         if not matricula:
             show_popup("Erro", "Matrícula não fornecida!")
             return
@@ -608,6 +607,49 @@ class PedidoDeUniformeScreen(Screen):
             AppState.popup_atual.dismiss()
             AppState.popup_atual = None
             Window.unbind(on_keyboard=self.voltar_tela)
+
+
+class MeusPedidosScreen(Screen):
+    def on_pre_enter(self):
+        Window.bind(on_keyboard=self.voltar_tela)
+        self.carregar_pedidos()
+
+
+    def on_pre_leave(self):
+        Window.unbind(on_keyboard=self.voltar_tela)
+
+    def voltar_tela(self, window, key, *args):
+        if key == 27:
+            if AppState.popup_atual and AppState.popup_atual.parent:
+                AppState.popup_atual.dismiss()
+                AppState.popup_atual = None
+                return True
+            self.manager.current = 'vigilante_screen'
+            return True
+
+
+    def carregar_pedidos(self):
+        matricula = app_state.matricula_get
+        print(f"Matricula usada na requisição: {matricula}")
+        try:
+            response = requests.get(f'{API_URL}/api/meus_pedidos/{matricula}')
+            print(f"Status da resposta: {response.status_code}")
+            print(f"Conteúdo da resposta: {response.text}")
+            if response.status_code == 200:
+                pedidos = response.json()
+                print(f"Pedidos retornados: {pedidos}")
+                if pedidos:
+                    self.ids.rv_pedidos.data = [
+                        {'text': f"{p['item_solicitado']} | {p['quantidade']} un | {p['status']} | {p['data_solicitacao'][:16].replace('-', '/')}"}
+                        for p in pedidos
+                    ]
+                else:
+                    self.ids.rv_pedidos.data = [{'text': 'Você ainda não fez nenhum pedido'}]
+            else:
+                self.ids.rv_pedidos.data = [{'text': f'Erro: {response.status_code}'}]
+        except Exception as e:
+            print(f"Erro ao conectar: {e}")
+            self.ids.rv_pedidos.data = [{'text': 'Falha ao conectar ao servidor'}]
 
 
 class RelatorioOcorrenciaScreen(Screen):
