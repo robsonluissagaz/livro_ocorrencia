@@ -762,7 +762,10 @@ class RelatorioOcorrenciaScreen2(Screen):
                 dados = response.json()
                 ocorrido = dados.get("ocorrido", "Sem detalhes")
                 posto = dados.get('posto', 'Posto não informado')
-                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"Ocorrido {self.id_selecionado}\nPosto: {posto}\n{ocorrido}"
+                data = dados.get('data_ocorrencia', 'Não informado')
+                data_obj = datetime.strptime(data, "%a, %d %b %Y %H:%M:%S %Z")
+                data_formatada = data_obj.strftime("%d/%m/%Y %H:%M:%S")
+                self.manager.get_screen('relatorio_ocorrencia3').ids.conteudo_ocorrido.text = f"ID: {self.id_selecionado}\nPosto: {posto}\nData: {data_formatada}\n\nOcorrido:\n{ocorrido}"
                 self.manager.current = 'relatorio_ocorrencia3'
             else:
                 show_popup('Erro', 'Erro ao buscar o ocorrido')

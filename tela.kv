@@ -175,6 +175,13 @@ MeuGerenciador:
             size: self.size
     name: 'relatorio_ocorrencia'
     FloatLayout:
+        Label:
+            id: label_letreiro
+            text: 'RELATÓRIO DE OCORRÊNCIAS'
+            size_hint: None, None
+            font_size: '20sp'
+            color: 0, 0, 0, 1
+            pos_hint: {'center_x': 0.5, 'y': 0.8}
         TextInput:
             id: pesquisa_matricula
             hint_text: 'INSIRA A MATRÍCULA'
@@ -424,7 +431,7 @@ MeuGerenciador:
             size_hint: None, None
             font_size: '20sp'
             color: 0, 0, 0, 1
-            pos_hint: {'center_x': 0.5, 'y': 0.85}
+            pos_hint: {'center_x': 0.5, 'y': 0.9}
         RecycleView:
             id: rv_ocorrencias
             size_hint: 0.9, 0.7
