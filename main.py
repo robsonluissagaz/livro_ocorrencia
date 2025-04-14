@@ -10,7 +10,7 @@ import requests
 from datetime import datetime
 API_URL = "http://186.225.224.185:5000"
 
-
+#Variáveis globais
 class AppState:
     usuario_get = ""
     nome_usuario_letreiro = ''
@@ -20,6 +20,7 @@ class AppState:
 
 app_state = AppState()
 
+#Pop up para avisos em geral
 def show_popup(titulo, mensagem):
     content = BoxLayout(orientation='vertical', spacing=10, padding=10)
     lbl_mensagem = Label(
@@ -44,6 +45,7 @@ def show_popup(titulo, mensagem):
     AppState.popup_atual.open()
 
 
+#Função que faz a requisição na API para buscar os dados de login e senha e fazer a liberação do acesso
 def login_usuario(nome_usuario, senha):
     payload = {
         "username": nome_usuario,
@@ -73,6 +75,7 @@ def login_usuario(nome_usuario, senha):
         return "erro_conexao_api"
 
 
+#Função que faz o logout do usuário
 def logout_usuario():
     if not app_state.usuario_get:
         return "nenhum_usuario_conectado"
@@ -89,6 +92,7 @@ def logout_usuario():
         return "erro_conexao_api"
 
 
+#Telo de login
 class LoginScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.fechar_app)
@@ -137,6 +141,7 @@ class LoginScreen(Screen):
             show_popup("Erro de Login", "Servidor indisponível no momento.")
 
 
+#Tela para usuários de hieraquia SUPERVISOR
 class SupervisorScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
@@ -166,7 +171,7 @@ class SupervisorScreen(Screen):
             self.desconectar()
             return True
 
-
+#Tela para cadastrar um vigilante (Função exclusiva para SUPERVISORES)
 class CadastroVigilanteScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
@@ -225,7 +230,7 @@ class CadastroVigilanteScreen(Screen):
         except requests.exceptions.RequestException as e:
             show_popup('Erro', f'{e}')
 
-
+#Tela para remover o cadastro de um vigilante(Normalmente usada quando o vigilante for desligado da empresa)
 class RemoverVigilanteScreen(Screen):
     def on_pre_enter(self):
         self.ids.matricula_vigilante_remover.text = ''
@@ -304,7 +309,7 @@ class RemoverVigilanteScreen(Screen):
             AppState.popup_atual = None
             Window.unbind(on_keyboard=self.voltar_tela)
 
-
+#Tela caso o susuário for de hieraquia vigilante
 class VigilanteScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
@@ -331,7 +336,7 @@ class VigilanteScreen(Screen):
                 app_state.usuario_get = ""
                 self.manager.current = "login_screen"
 
-
+#Tela para cadastrar uma novo ocorrência(Função exclusiva para VIGILANTES)
 class OcorrenciaScreen(Screen):
     def on_pre_enter(self):
         self.ids.posto.text = ''
@@ -419,7 +424,7 @@ class OcorrenciaScreen(Screen):
         AppState.popup_atual.dismiss()
         self.registrar_ocorrencia()
         
-
+#Tela para o vigilantes visualizar as ocorrências que ele efetuou
 class MinhasOcorrenciasScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
@@ -477,7 +482,7 @@ class MinhasOcorrenciasScreen(Screen):
     def mostrar_detalhes(self, texto):
         self.manager.get_screen('minhas_ocorrencias2_screen').mostrar_ocorrencia(texto)
 
-
+#Complemento da tela anterior
 class MinhasOcorrencias2Screen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
