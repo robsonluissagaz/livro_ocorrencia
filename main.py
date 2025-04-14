@@ -8,7 +8,7 @@ from kivy.uix.button import Button
 from kivy.core.window import Window
 import requests
 from datetime import datetime
-API_URL = "http://186.225.224.185:5000"
+API_URL = "ENDEREÇO DA API"
 
 #Variáveis globais
 class AppState:
