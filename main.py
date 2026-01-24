@@ -92,7 +92,7 @@ def logout_usuario():
         return "erro_conexao_api"
 
 
-#Telo de login
+#Tela de login
 class LoginScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.fechar_app)
@@ -336,7 +336,7 @@ class VigilanteScreen(Screen):
                 app_state.usuario_get = ""
                 self.manager.current = "login_screen"
 
-#Tela para cadastrar uma novo ocorrência(Função exclusiva para VIGILANTES)
+#Tela para cadastrar uma nova ocorrência(Função exclusiva para VIGILANTES)
 class OcorrenciaScreen(Screen):
     def on_pre_enter(self):
         self.ids.posto.text = ''
@@ -424,7 +424,7 @@ class OcorrenciaScreen(Screen):
         AppState.popup_atual.dismiss()
         self.registrar_ocorrencia()
         
-#Tela para o vigilantes visualizar as ocorrências que ele efetuou
+#Tela para o vigilante visualizar as ocorrências que ele efetuou
 class MinhasOcorrenciasScreen(Screen):
     def on_pre_enter(self):
         Window.bind(on_keyboard=self.voltar_tela)
